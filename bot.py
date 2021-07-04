@@ -85,7 +85,11 @@ async def set_reaction_roles(ctx, message_link, *reaction_roles):
         emoji = await get_emoji(emoji_to_role[0])
 
         if emoji:
-            save_reaction_action(server_id, channel_id, message_id, emoji.id, f"role.{emoji_to_role[1]}", "z_PermanentReactionActions.txt")
+            role = discord.utils.get(server.roles, name=emoji_to_role[1])
+            role_id = role.id
+            print("Role id:")
+            print(role_id)
+            save_reaction_action(server_id, channel_id, message_id, emoji.id, f"role.{role_id}", "z_PermanentReactionActions.txt")
             await message.add_reaction(emoji)
 
     
@@ -253,6 +257,8 @@ async def determine_reaction_action(payload):
         for line in file_contents:
             components = line.strip().split(":") # address : emoji ID : action
             address_components = components[0].split("/")
+
+            user_id = str(payload.user_id)
             server_id = int(address_components[0])
             channel_id = int(address_components[1])
             message_id = int(address_components[2])
@@ -262,7 +268,9 @@ async def determine_reaction_action(payload):
 
             if reacted_message_id == message_id:
                 if str(reacted_emoji.id) == emoji_id:
-                    await perform_action(server_id, channel_id, message_id, emoji_id, action)
+                    print("Payload..")
+                    print(user_id)
+                    await perform_action(user_id, server_id, channel_id, message_id, emoji_id, action)
 
     with open("z_PermanentReactionActions.txt", 'r') as file:
         await read_file(file)
@@ -271,7 +279,7 @@ async def determine_reaction_action(payload):
         await read_file(file)
 
 
-async def perform_action(server_id, channel_id, message_id, emoji_id, action_string):
+async def perform_action(user_id, server_id, channel_id, message_id, emoji_id, action_string):
     print("Performing react action")
     server = bot.get_guild(server_id)
     channel = server.get_channel(channel_id)
@@ -282,7 +290,35 @@ async def perform_action(server_id, channel_id, message_id, emoji_id, action_str
         cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_string)
     elif "role." in action_string:
         print("role!!!!!!!")
-        print(action_string)
+        action_split = action_string.split(".")
+
+        print("split: action_split")
+        print(action_split)
+        print("\n")
+
+        role_id = int(action_split[1].strip())
+        role = discord.utils.get(server.roles, id=role_id)
+        member = server.get_member(int(user_id))
+
+        print("Member")
+        print(member)
+
+        print("roles:")
+        print(member.roles)
+
+        print("\n")
+        print("server roles")
+        print(server.roles)
+
+        print("the role")
+        print(role)
+
+        print("the role ID")
+        print(role_id)
+        if role in member.roles:
+            await member.remove_roles(role)
+        else:
+            await member.add_roles(role)
 
 def cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_string):
     message_address = f"{server_id}/{channel_id}/{message_id}"
