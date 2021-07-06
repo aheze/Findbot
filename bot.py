@@ -80,7 +80,7 @@ async def set_modlog(ctx, channel: discord.TextChannel):
 async def on_message(message):
     if message.author == bot.user: return
 
-    await Moderation.check_censor(message)
+    await Moderation.check_censor(bot, message)
     await bot.process_commands(message) # Needed to allow other commands to work
 
 @bot.event

@@ -8,12 +8,12 @@ from datetime import datetime, timedelta
 import asyncio
 
 GREEN = "<:Green:860713764742496258>"
+GREEN_ID = "860713764742496258"
 MUTED_ID = 861271876185751553
 
-# badwords = []
-# with open('BadWords.txt', 'r') as f:
-#     # global badwords  # You want to be able to access this throughout the code
-#     badwords = f.read().splitlines()
+with open('BadWords.txt', 'r') as f:
+    global badwords  # You want to be able to access this throughout the code
+    badwords = f.read().splitlines()
 
 async def set_modlog(ctx, channel: discord.TextChannel):
     guild_id = str(ctx.guild.id)
@@ -141,46 +141,46 @@ async def mute(bot, ctx, user: discord.User, args):
     await log_channel.send(embed=embed_log)
     print("send")
 
-async def check_censor(message):
+async def check_censor(bot, message):
     print("cehck!")
-    # msg = message.content.split()
+    msg = message.content.split()
 
-    # bad_word = ""
-    # for word in badwords:
-    #     if word.lower() in msg:
-    #         print(f"Bad word: {word}, in {msg}")
-    #         bad_word = word
-    #         break
+    bad_word = ""
+    for word in badwords:
+        if word.lower() in msg:
+            print(f"Bad word: {word}, in {msg}")
+            bad_word = word
+            break
     
-    # if bad_word != "":
-    #     channel = message.channel
+    if bad_word != "":
+        channel = message.channel
 
-    #     embed = main.discord.Embed(description=f"{message.author.mention}, don't say that >:(", color=0xFF0000)
-    #     embed.set_footer(text=f"React with the check to dismiss")
+        embed = discord.Embed(description=f"{message.author.mention}, don't say that >:(", color=0xFF0000)
+        embed.set_footer(text=f"React with the check to dismiss")
 
-    #     await message.delete()
-    #     warning_message = await channel.send(embed=embed)
-    #     warning_channel = warning_message.channel
-    #     warning_server = warning_channel.guild
+        await message.delete()
+        warning_message = await channel.send(embed=embed)
+        warning_channel = warning_message.channel
+        warning_server = warning_channel.guild
 
-    #     ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, main.GREEN_ID, "delete")
-    #     await warning_message.add_reaction(main.GREEN)
+        ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, GREEN_ID, "delete")
+        await warning_message.add_reaction(GREEN)
 
-    #     with open('z_ServerConfig.txt', 'r') as file:
-    #         file_contents = FileContents.get_file_contents(file)
+        with open('z_ServerConfig.txt', 'r') as file:
+            file_contents = FileContents.get_file_contents(file)
 
-    #         for line in file_contents:
-    #             if "modlog:" in line:
-    #                 line_split = line.split(":")
-    #                 server_id = int(line_split[1])
-    #                 channel_id = int(line_split[2])
+            for line in file_contents:
+                if "modlog:" in line:
+                    line_split = line.split(":")
+                    server_id = int(line_split[1])
+                    channel_id = int(line_split[2])
 
-    #                 log_server = main.bot.get_guild(server_id)
-    #                 log_channel = log_server.get_channel(channel_id)
+                    log_server = bot.get_guild(server_id)
+                    log_channel = log_server.get_channel(channel_id)
 
-    #                 embed_log = main.discord.Embed(title="Censored Message:", description=f"{message.content}", color=0xFF0000)
-    #                 embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
-    #                 embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
-    #                 embed_log.set_footer(text=f"Censored word: {bad_word}")
-    #                 await log_channel.send(embed=embed_log)
-    #                 break
+                    embed_log = discord.Embed(title="Censored Message:", description=f"{message.content}", color=0xFF0000)
+                    embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
+                    embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
+                    embed_log.set_footer(text=f"Censored word: {bad_word}")
+                    await log_channel.send(embed=embed_log)
+                    break
