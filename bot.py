@@ -66,6 +66,16 @@ async def mute(ctx, user: discord.User, *args):
     if Permissions.check_no_permissions(ctx.author): return
     await Moderation.mute(bot, ctx, user, args)
 
+@bot.command(name='ban')
+async def ban(ctx, user: discord.User, *args):
+    if Permissions.check_no_permissions(ctx.author): return
+    await Moderation.ban(bot, ctx, user, args)
+
+@bot.command(name='unban')
+async def unban(ctx, user: discord.User, *args):
+    if Permissions.check_no_permissions(ctx.author): return
+    await Moderation.unban(bot, ctx, user, args)
+
 @bot.command(name='reactroles')
 async def set_reaction_roles(ctx, message_link, *reaction_roles):
     if Permissions.check_no_admin_permissions(ctx.author): return
