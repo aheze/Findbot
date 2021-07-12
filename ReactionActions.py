@@ -1,8 +1,15 @@
+from Reactions import react
+import Permissions
 import FileContents
+import Utilities
+# import HelpContinue
+import HelpStart
 import discord
 
+PROGRESS_EMOJI_ID = 863079541675917402
+
 def read_reaction_line(line):
-    components = line.strip().split(":") # address : emoji ID : action
+    components = line.strip().split(":", 2) # address : emoji ID : action
     address_components = components[0].split("/")
 
     server_id = int(address_components[0])
@@ -102,6 +109,60 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
                 await member.remove_roles(role)
             else:
                 await member.add_roles(role)
+    elif "claim." in action_string:
+        print("claim!")
+        action_split = action_string.split(".")
+        claim_role_id = int(action_split[1].strip())
+        claim_user_id = int(action_split[2])
+
+        if claim_user_id == int(user_id):
+            role = discord.utils.get(server.roles, id=claim_role_id)
+            member = server.get_member(claim_user_id)
+
+            if extra_instructions == "add":
+                await member.add_roles(role)
+            else:
+                await member.remove_roles(role)
+        else:
+            if extra_instructions == "add":
+                progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
+                await message.add_reaction(progress_reaction)
+
+                for reaction in message.reactions:
+                    if reaction.emoji.id == int(emoji_id):
+                        users = await reaction.users().flatten()
+                        for user in users:
+                            is_bot = Permissions.check_is_bot(user)
+                            is_awardee = claim_user_id == user.id
+                            if is_bot == False and is_awardee == False:
+                                await message.remove_reaction(reaction, user)
+
+                await message.remove_reaction(progress_reaction, bot.user)
+    elif "help." in action_string:
+        print("Help!")
+        action_split = action_string.split(".")
+        topic_id = int(action_split[1].strip())
+        session_user_id = int(action_split[2].strip())
+
+        if session_user_id == int(user_id):
+            print("getting help")
+            await HelpStart.continue_help(bot, server, channel, message, topic_id, session_user_id)
+        else:
+            print("diff user")
+            # if extra_instructions == "add":
+            #     progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
+            #     await message.add_reaction(progress_reaction)
+
+            #     for reaction in message.reactions:
+            #         if reaction.emoji.id == int(emoji_id):
+            #             users = await reaction.users().flatten()
+            #             for user in users:
+            #                 is_bot = Permissions.check_is_bot(user)
+            #                 is_awardee = claim_user_id == user.id
+            #                 if is_bot == False and is_awardee == False:
+            #                     await message.remove_reaction(reaction, user)
+
+
 
 def cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_string):
     message_address = f"{server_id}/{channel_id}/{message_id}"

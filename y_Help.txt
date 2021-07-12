@@ -1,0 +1,8 @@
+Hi I'm Findbot, what can I help you with?
+   BotCommands~~Bot Commands~~You've selected bot commands!
+      Option1~~Color~~<a>color
+      Option2~~Ping~~<a>ping
+   ServerInformation~~Server Information~~You've selected Server Information!
+   StatsChart~~Server/App stats~~You've selected stats
+   RoleInformation~~Role Information~~You've selected role info
+   CustomQuestion~~Ask a custom question~~<a>sendCustom

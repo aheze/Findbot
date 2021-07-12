@@ -15,6 +15,17 @@ def get_emoji(bot, name):
 
     return emoji
 
+def get_emoji_from_id(bot, id):
+    emoji = None
+    for guild in bot.guilds:
+        found_emoji = discord.utils.get(guild.emojis, id=id)
+
+        if found_emoji:
+            emoji = found_emoji
+            break
+
+    return emoji
+
 def get_modlog_channel(bot):
     with open('z_ServerConfig.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)

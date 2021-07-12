@@ -1,5 +1,7 @@
 # bot.py - test
-# version 1
+
+INFO = "Test 3"
+PREFIX = ","
 
 from logging import error
 import os
@@ -16,6 +18,8 @@ import Reactions
 import ReactionRoles
 import ReactionActions
 import TimedActions
+import Tutorials
+import HelpStart
 
 
 load_dotenv()
@@ -26,7 +30,7 @@ intents.reactions = True
 intents.members = True
 
 activity = discord.Game(name="getfind.app")
-bot = commands.Bot(command_prefix=',', activity=activity, intents=intents)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(PREFIX), activity=activity, intents=intents, help_command=None)
 
 # Emoji
 RED = "<:Red:860713765107400714>"
@@ -46,6 +50,23 @@ async def ping(ctx):
 async def get_pfp(ctx, user: discord.User):
     await Misc.get_pfp(ctx, user)
 
+@bot.command(name='help')
+async def get_pfp(ctx):
+    print("help...")
+    await HelpStart.help(bot, ctx)
+
+@bot.command(name='color')
+async def get_color(ctx, color: str):
+    await Misc.get_color(ctx, color)
+
+@bot.command(name='how')
+async def send_tutorial(ctx, tutorial_name):
+    await Tutorials.send_tutorial(bot, ctx, tutorial_name)
+    
+@bot.command(name='unhow')
+async def send_tutorial(ctx, specific_command_name = None):
+    await Tutorials.unsend_latest_tutorial(bot, ctx, specific_command_name)
+
 @bot.command(name='react')
 async def react(ctx, message_id, reaction):
     if Permissions.check_no_permissions(ctx.author): return
@@ -57,9 +78,9 @@ async def clear_reacts(ctx, message_link):
     await Reactions.clear_reacts(bot, message_link)
 
 @bot.command(name='unmute')
-async def unmute(ctx, user: discord.User, reason = ""):
+async def unmute(ctx, user: discord.User, *args):
     if Permissions.check_no_permissions(ctx.author): return
-    await Moderation.unmute(bot, ctx, user, reason)
+    await Moderation.unmute(bot, ctx, user, args)
 
 @bot.command(name='mute')
 async def mute(ctx, user: discord.User, *args):
@@ -76,6 +97,16 @@ async def unban(ctx, user: discord.User, *args):
     if Permissions.check_no_permissions(ctx.author): return
     await Moderation.unban(bot, ctx, user, args)
 
+@bot.command(name='givemember')
+async def give_all_member(ctx):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    await Moderation.give_all_member(ctx)
+
+@bot.command(name='setclaim')
+async def set_claim_role(ctx, user: discord.User, emoji_name: str, role_name: str, in_channel: discord.TextChannel, *args):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    await Reactions.set_claim_role(bot, ctx, user, emoji_name, role_name, in_channel, args)
+
 @bot.command(name='reactroles')
 async def set_reaction_roles(ctx, message_link, *reaction_roles):
     if Permissions.check_no_admin_permissions(ctx.author): return
@@ -89,9 +120,12 @@ async def set_modlog(ctx, channel: discord.TextChannel):
 @bot.event
 async def on_message(message):
     if message.author == bot.user: return
-
-    await Moderation.check_censor(bot, message)
-    await bot.process_commands(message) # Needed to allow other commands to work
+    if Permissions.check_no_admin_permissions(message.author) == False: 
+        await bot.process_commands(message) # Needed to allow other commands to work
+        return
+    else:
+        await Moderation.check_censor(bot, message)
+        await bot.process_commands(message) # Needed to allow other commands to work
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -106,8 +140,16 @@ async def on_raw_reaction_remove(payload):
     await ReactionActions.determine_reaction_action(bot, payload, "remove")
 
 @bot.event
+async def on_member_join(member):
+    await Moderation.give_member_role(member)
+
+@bot.event
+async def on_raw_message_delete(payload):
+    await Moderation.handle_message_delete(bot, payload)
+
+@bot.event
 async def on_ready():
-    print("Ready to test!")
+    print(f"Ready - {INFO}!")
     await TimedActions.check_timed_actions(bot)
 
 @bot.event

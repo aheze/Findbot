@@ -1,4 +1,5 @@
 import ReactionActions
+import ModerationStorage
 import FileContents
 import TimedActions
 import Utilities
@@ -14,10 +15,42 @@ COLOR_RED = 0xff0000
 GREEN = "<:Green:860713764742496258>"
 GREEN_ID = "860713764742496258"
 MUTED_ID = 861271876185751553
+MEMBER_ROLE_ID = 862919875060039680
 
 with open('BadWords.txt', 'r') as f:
     global badwords  # You want to be able to access this throughout the code
     badwords = f.read().splitlines()
+
+async def handle_message_delete(bot, payload):
+    print("delete!a")
+    if payload.guild_id:
+        guild = bot.get_guild(payload.guild_id)
+        channel = bot.get_channel(payload.channel_id)
+        message = await channel.fetch_message(payload.message_id)
+        print("message")
+        print(message)
+        # if guild.name == "Server Name":
+        #     if message.author.bot: # more pythonic way of checking bools
+        #         print("bot deleted")
+        #     else:
+        #         print(...
+
+async def give_all_member(ctx):
+    server = ctx.guild
+    member_role = discord.utils.get(server.roles, id=MEMBER_ROLE_ID)
+    muted_role = discord.utils.get(server.roles, id=MUTED_ID)
+
+    for member in server.members:
+        if muted_role not in member.roles:
+            await member.add_roles(member_role)
+            
+    await ctx.message.add_reaction(GREEN)
+
+
+async def give_member_role(member):
+    server = member.guild
+    member_role = discord.utils.get(server.roles, id=MEMBER_ROLE_ID)
+    await member.add_roles(member_role)
 
 async def set_modlog(ctx, channel: discord.TextChannel):
     guild_id = str(ctx.guild.id)
@@ -86,16 +119,23 @@ async def unban(bot, ctx, user: discord.User, args):
     await log_channel.send(embed=embed_log)
     await ctx.message.add_reaction(GREEN)
 
-async def unmute(bot, ctx, user: discord.User, reason = ""):
+async def unmute(bot, ctx, user: discord.User, args):
     print("unmute!")
     server = ctx.guild
     member = server.get_member(user.id)
     muted_role = discord.utils.get(server.roles, id=MUTED_ID)
     await member.remove_roles(muted_role)
 
+    if args:
+        reason = " ".join(args)
+        reason_string = f"Reason: {reason}"
+    else:
+        reason_string = "No reason given"
+
     keywords = ["unmute", str(user.id)]
     TimedActions.remove_timed_actions(keywords)
     embed = discord.Embed(description=f"Unmuted {member.mention}", color=COLOR_GREEN)
+    embed.set_footer(text=reason_string)
     await ctx.send(embed=embed)
 
     log_channel = Utilities.get_modlog_channel(bot)
@@ -103,8 +143,16 @@ async def unmute(bot, ctx, user: discord.User, reason = ""):
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
     embed_log.add_field(name="Unmuter:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
     embed_log.add_field(name="Unmuted:", value=f"{member.mention} ({member.id})", inline=True)
+    embed_log.set_footer(text=reason_string)
 
     await log_channel.send(embed=embed_log)
+
+    role_ids = ModerationStorage.get_roles_from_storage(user.id)
+    print(role_ids)
+    for role_id in role_ids:
+        role = discord.utils.get(server.roles, id=int(role_id))
+        await member.add_roles(role)
+
 
 async def mute(bot, ctx, user: discord.User, args):
     print("mute!")
@@ -152,9 +200,18 @@ async def mute(bot, ctx, user: discord.User, args):
     server = ctx.guild
     member = server.get_member(user.id)
     muted_role = discord.utils.get(server.roles, id=MUTED_ID)
-    action_string = f"unmute.{ctx.guild.id}.{user.id}"
-    await member.add_roles(muted_role)
+    
+    member_roles = [role for role in member.roles if role.name != "@everyone"]
+    user_roles = [str(role.id) for role in member_roles]
+    joined = ",".join(user_roles)
+    ModerationStorage.save_roles_to_storage(user.id, joined)
 
+    await member.add_roles(muted_role)
+    for role in member_roles:
+        await member.remove_roles(role)
+    
+
+    action_string = f"unmute.{ctx.guild.id}.{user.id}"
     keywords = ["unmute", str(user.id)]
     TimedActions.remove_timed_actions(keywords)
     TimedActions.remove_timed_actions(action_string)
@@ -180,46 +237,54 @@ async def mute(bot, ctx, user: discord.User, args):
 
     await log_channel.send(embed=embed_log)
 
+
+
 async def check_censor(bot, message):
-    msg = message.content.split()
-    msg_lower = [x.lower() for x in msg]
+    pass
+    # msg = message.content.split()
+    # msg_lower = [x.lower() for x in msg]
 
-    bad_word = ""
-    for word in badwords:
-        if word.lower() in msg_lower:
-            print(f"Bad word: {word}, in {msg}")
-            bad_word = word
-            break
+    # bad_word = ""
+    # for word in badwords:
+    #     if word.lower() in msg_lower:
+    #         print(f"Bad word: {word}, in {msg}")
+    #         bad_word = word
+    #         break
     
-    if bad_word != "":
-        channel = message.channel
+    # if bad_word != "":
+    #     channel = message.channel
 
-        embed = discord.Embed(description=f"{message.author.mention}, don't say that >:(", color=COLOR_RED)
-        embed.set_footer(text=f"React with the check to dismiss")
+    #     if message.author.id == 122607569603657728:
+    #         print("Yep!")
+    #         embed = discord.Embed(description=f"{message.author.mention}, you shouldn't don't say that, but you have a free pass!", color=COLOR_RED)
+    #         embed.set_footer(text=f"React with the check to dismiss")
+    #     else:
+    #         embed = discord.Embed(description=f"{message.author.mention}, don't say that >:(", color=COLOR_RED)
+    #         embed.set_footer(text=f"React with the check to dismiss")
+    #         await message.delete()
+            
+    #     warning_message = await channel.send(embed=embed)
+    #     warning_channel = warning_message.channel
+    #     warning_server = warning_channel.guild
 
-        await message.delete()
-        warning_message = await channel.send(embed=embed)
-        warning_channel = warning_message.channel
-        warning_server = warning_channel.guild
+    #     ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, GREEN_ID, "delete")
+    #     await warning_message.add_reaction(GREEN)
 
-        ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, GREEN_ID, "delete")
-        await warning_message.add_reaction(GREEN)
+    #     with open('z_ServerConfig.txt', 'r') as file:
+    #         file_contents = FileContents.get_file_contents(file)
 
-        with open('z_ServerConfig.txt', 'r') as file:
-            file_contents = FileContents.get_file_contents(file)
+    #         for line in file_contents:
+    #             if "modlog:" in line:
+    #                 line_split = line.split(":")
+    #                 server_id = int(line_split[1])
+    #                 channel_id = int(line_split[2])
 
-            for line in file_contents:
-                if "modlog:" in line:
-                    line_split = line.split(":")
-                    server_id = int(line_split[1])
-                    channel_id = int(line_split[2])
+    #                 log_server = bot.get_guild(server_id)
+    #                 log_channel = log_server.get_channel(channel_id)
 
-                    log_server = bot.get_guild(server_id)
-                    log_channel = log_server.get_channel(channel_id)
-
-                    embed_log = discord.Embed(title="Censored Message:", description=f"{message.content}", color=COLOR_RED)
-                    embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
-                    embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
-                    embed_log.set_footer(text=f"Censored word: {bad_word}")
-                    await log_channel.send(embed=embed_log)
-                    break
+    #                 embed_log = discord.Embed(title="Censored Message:", description=f"{message.content}", color=COLOR_RED)
+    #                 embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
+    #                 embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
+    #                 embed_log.set_footer(text=f"Censored word: {bad_word}")
+    #                 await log_channel.send(embed=embed_log)
+    #                 break

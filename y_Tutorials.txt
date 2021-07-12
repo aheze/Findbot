@@ -1,0 +1,8 @@
+(T:rate) How to rate or review the app
+Ratings/reviews boost Find's ranking in the App Store, so they are very needed! First, make sure you have [downloaded Find](https://getfind.app).
+Click [here](https://apps.apple.com/app/find-command-f-for-camera/id1506500202/) to visit the App Store.
+Scroll down. To rate, tap the stars. To write a review, tap "Write a review."<img>Assets/rateTap.png
+Reviews are slightly better than ratings, but I appreciate both!<img>Assets/rateWrite.png
+Thank you!
+
+

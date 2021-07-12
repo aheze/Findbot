@@ -28,22 +28,10 @@ async def set_reaction_roles(bot, ctx, message_link, reaction_roles):
 
     # message address : emoji ID : action (assign role)
     for reaction_role in reaction_roles:
-        print("Lllop")
-        print("rea: ")
-        print(reaction_role)
         emoji_to_role = reaction_role.split(":")
-        print("emoooo:")
-        print(emoji_to_role)
-        print(reaction_role.split(":"))
-        print("emo to row:")
         emoji = Utilities.get_emoji(bot, emoji_to_role[0])
-        print(emoji)
-        print("emo about")
         if emoji:
-            print("yes emo")
             role = discord.utils.get(server.roles, name=emoji_to_role[1])
-            print("role")
-            print(role)
             if role:
                 role_id = role.id
                 has_error = ReactionActions.save_reaction_action(server_id, channel_id, message_id, emoji.id, f"role.{role_id}", "z_PermanentReactionActions.txt")
@@ -55,7 +43,6 @@ async def set_reaction_roles(bot, ctx, message_link, reaction_roles):
             else:
                 role_not_founds.append(emoji_to_role[1])
         else:
-            print("NO emo")
             emoji_not_founds.append(emoji_to_role[0])
 
     if not emoji_not_founds and not role_not_founds and not duplicate_roles_messages:
