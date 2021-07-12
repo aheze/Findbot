@@ -35,7 +35,6 @@ def get_name_for(node):
     title_name = topic_split[2]
 
     tuple = (emoji_name, options_display_name, title_name, id)
-    print(tuple)
     return tuple
 
 def get_topics_for(tree):

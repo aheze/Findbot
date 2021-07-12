@@ -138,28 +138,26 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
 
                 await message.remove_reaction(progress_reaction, bot.user)
     elif "help." in action_string:
-        print("Help!")
         action_split = action_string.split(".")
         topic_id = int(action_split[1].strip())
         session_user_id = int(action_split[2].strip())
 
         if session_user_id == int(user_id):
-            print("getting help")
             await Help.continue_help(bot, server, channel, message, topic_id, session_user_id)
         else:
-            print("diff user")
-            # if extra_instructions == "add":
-            #     progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
-            #     await message.add_reaction(progress_reaction)
+            if extra_instructions == "add":
+                progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
+                await message.add_reaction(progress_reaction)
 
-            #     for reaction in message.reactions:
-            #         if reaction.emoji.id == int(emoji_id):
-            #             users = await reaction.users().flatten()
-            #             for user in users:
-            #                 is_bot = Permissions.check_is_bot(user)
-            #                 is_awardee = claim_user_id == user.id
-            #                 if is_bot == False and is_awardee == False:
-            #                     await message.remove_reaction(reaction, user)
+                for reaction in message.reactions:
+                    if reaction.emoji.id == int(emoji_id):
+                        users = await reaction.users().flatten()
+                        for user in users:
+                            is_bot = Permissions.check_is_bot(user)
+                            is_session_user = session_user_id == user.id
+                            if is_bot == False and is_session_user == False:
+                                await message.remove_reaction(reaction, user)
+                await message.remove_reaction(progress_reaction, bot.user)
 
 
 
