@@ -4,11 +4,22 @@ import ReactionActions
 import uuid
 from anytree import Node, RenderTree, search
 
-async def help(self, bot, ctx):
+helps = []
+
+async def help(bot, ctx):
+    global helps
     help = HelpFactory()
+    helps.append(help)
     await help.start_help(bot, ctx)
 
+async def continue_help(bot, server, channel, message, id, session_user_id):
+    matching_helps = [x for x in helps if x.session_message_id == message.id]
+    print(matching_helps)
+    continued_help = matching_helps[0]
+    await continued_help.continue_help(bot, server, channel, message, id, session_user_id)
+
 class HelpFactory:
+    session_message_id = None
     current_help = None
     queued_message = None
     queued_server_id = None
@@ -16,21 +27,18 @@ class HelpFactory:
     queued_emoji_to_action = None
 
     async def start_help(self, bot, ctx):
+        global session_message_id
         topic_tree = HelpBase.parse_tree()
 
         text, emoji_to_action = self.get_help_content(bot, "", ctx.author.id, topic_tree, topic_tree.name)
         message = await ctx.send(text)
+        self.session_message_id = message.id
+
         server = ctx.guild
         channel = message.channel
         await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
     async def continue_help(self, bot, server, channel, message, id, session_user_id):
-        global current_help 
-        global queued_message
-        global queued_server_id
-        global queued_channel_id
-        global queued_emoji_to_action
-
         existing_content = message.content
         existing_message_string = existing_content + "\n\n⇣\n\n"
         topic_tree = HelpBase.parse_tree()
@@ -40,13 +48,12 @@ class HelpFactory:
         text, emoji_to_action = self.get_help_content(bot, existing_message_string, session_user_id, node, node_name)
         edited_message = await message.edit(content=text)
 
-        if current_help:
-            print("ongoing...")
-            current_help = str(uuid.uuid4())
-            queued_message = message
-            queued_server_id = server.id
-            queued_channel_id = channel.id
-            queued_emoji_to_action = emoji_to_action
+        if self.current_help:
+            self.current_help = str(uuid.uuid4())
+            self.queued_message = message
+            self.queued_server_id = server.id
+            self.queued_channel_id = channel.id
+            self.queued_emoji_to_action = emoji_to_action
         else:
             await message.clear_reactions()
             await self.add_reactions(message, server.id, channel.id, emoji_to_action)
@@ -68,13 +75,12 @@ class HelpFactory:
         return (new_message_string, emoji_to_action)
 
     async def add_reactions(self, message, server_id, channel_id, emoji_to_action):
-        global current_help 
 
         instance_uuid = str(uuid.uuid4())
-        current_help = instance_uuid
+        self.current_help = instance_uuid
 
         for emoji, action in emoji_to_action:
-            if current_help == instance_uuid:
+            if self.current_help == instance_uuid:
                 ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
                 await message.add_reaction(emoji)
             else:
@@ -83,25 +89,20 @@ class HelpFactory:
                 await self.perform_queued_continue()
                 break
         
-        current_help = None
+        self.current_help = None
 
 
     async def perform_queued_continue(self):
-        global current_help 
-        global queued_message
-        global queued_server_id
-        global queued_channel_id
-        global queued_emoji_to_action
 
         await self.add_reactions(
-            queued_message,
-            queued_server_id,
-            queued_channel_id,
-            queued_emoji_to_action
+            self.queued_message,
+            self.queued_server_id,
+            self.queued_channel_id,
+            self.queued_emoji_to_action
         )
 
-        current_help = None
-        queued_message = None
-        queued_server_id = None
-        queued_channel_id = None
-        queued_emoji_to_action = None
+        self.current_help = None
+        self.queued_message = None
+        self.queued_server_id = None
+        self.queued_channel_id = None
+        self.queued_emoji_to_action = None
