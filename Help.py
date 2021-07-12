@@ -14,7 +14,7 @@ async def help(bot, ctx):
     await start_help(bot, ctx)
 
 async def start_help(bot, ctx):
-    topic_tree = Help.parse_tree()
+    topic_tree = HelpBase.parse_tree()
 
     text, emoji_to_action = get_help_content(bot, "", ctx.author.id, topic_tree, topic_tree.name)
     message = await ctx.send(text)
@@ -31,16 +31,15 @@ async def continue_help(bot, server, channel, message, id, session_user_id):
 
     existing_content = message.content
     existing_message_string = existing_content + "\n\n⇣\n\n"
-    topic_tree = Help.parse_tree()
+    topic_tree = HelpBase.parse_tree()
     node = search.find(topic_tree, lambda node: f"{id}<->" in node.name)
-    node_name = Help.get_name_for(node)[2]
+    node_name = HelpBase.get_name_for(node)[2]
 
     text, emoji_to_action = get_help_content(bot, existing_message_string, session_user_id, node, node_name)
     edited_message = await message.edit(content=text)
 
     if current_help:
         print("ongoing...")
-        # requires_perform_queued = True
         current_help = str(uuid.uuid4())
         queued_message = message
         queued_server_id = server.id
@@ -51,7 +50,7 @@ async def continue_help(bot, server, channel, message, id, session_user_id):
         await add_reactions(message, server.id, channel.id, emoji_to_action)
 
 def get_help_content(bot, existing_text, user_id, node, node_name):
-    topics = Help.get_topics_for(node)
+    topics = HelpBase.get_topics_for(node)
 
     emoji_to_action = []
     message_body = ""
@@ -77,6 +76,7 @@ async def add_reactions(message, server_id, channel_id, emoji_to_action):
             ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
             await message.add_reaction(emoji)
         else:
+            print("STOPPPp")
             await message.clear_reactions()
             await perform_queued_continue()
             break

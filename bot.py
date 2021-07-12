@@ -19,7 +19,7 @@ import ReactionRoles
 import ReactionActions
 import TimedActions
 import Tutorials
-import HelpBase
+import Help
 
 
 load_dotenv()
@@ -53,7 +53,7 @@ async def get_pfp(ctx, user: discord.User):
 @bot.command(name='help')
 async def get_pfp(ctx):
     print("help...")
-    await HelpBase.help(bot, ctx)
+    await Help.help(bot, ctx)
 
 @bot.command(name='color')
 async def get_color(ctx, color: str):
