@@ -5,8 +5,6 @@ import uuid
 from anytree import Node, RenderTree, search
 
 current_help = None
-
-# requires_perform_queued = False
 queued_message = None
 queued_server_id = None
 queued_channel_id = None
@@ -26,7 +24,6 @@ async def start_help(bot, ctx):
 
 async def continue_help(bot, server, channel, message, id, session_user_id):
     global current_help 
-    # global requires_perform_queued
     global queued_message
     global queued_server_id
     global queued_channel_id
@@ -53,14 +50,6 @@ async def continue_help(bot, server, channel, message, id, session_user_id):
         await message.clear_reactions()
         await add_reactions(message, server.id, channel.id, emoji_to_action)
 
-    # print("STOPPPP... old,")
-    # print(current_help)
-    
-
-    # print("STOPPPP... new,")
-    # print(current_help)
-    
-
 def get_help_content(bot, existing_text, user_id, node, node_name):
     topics = Help.get_topics_for(node)
 
@@ -79,24 +68,20 @@ def get_help_content(bot, existing_text, user_id, node, node_name):
 
 async def add_reactions(message, server_id, channel_id, emoji_to_action):
     global current_help 
+
     instance_uuid = str(uuid.uuid4())
     current_help = instance_uuid
 
     for emoji, action in emoji_to_action:
-        print("adding... currently,")
-        print(current_help)
         if current_help == instance_uuid:
             ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
             await message.add_reaction(emoji)
         else:
-            print("New...")
             await message.clear_reactions()
             await perform_queued_continue()
-
             break
-
     
-    current_help = ""
+    current_help = None
 
 
 async def perform_queued_continue():
