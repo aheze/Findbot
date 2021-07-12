@@ -143,7 +143,7 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
         session_user_id = int(action_split[2].strip())
 
         if session_user_id == int(user_id):
-            await Help.continue_help(bot, server, channel, message, topic_id, session_user_id)
+            await Help.continue_help(bot, server, channel, message, topic_id, session_user_id, emoji_id)
         else:
             if extra_instructions == "add":
                 progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)

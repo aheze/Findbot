@@ -13,10 +13,10 @@ async def help(bot, ctx):
     helps.append(help)
     await help.start_help(bot, ctx)
 
-async def continue_help(bot, server, channel, message, id, session_user_id):
+async def continue_help(bot, server, channel, message, id, session_user_id, emoji_id):
     matching_helps = [x for x in helps if x.session_message_id == message.id]
     continued_help = matching_helps[0]
-    await continued_help.continue_help(bot, server, channel, message, id, session_user_id)
+    await continued_help.continue_help(bot, server, channel, message, id, session_user_id, emoji_id)
 
 class HelpFactory:
     session_message_id = None
@@ -41,13 +41,13 @@ class HelpFactory:
         channel = message.channel
         await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
-    async def continue_help(self, bot, server, channel, message, topic_id, session_user_id):
+    async def continue_help(self, bot, server, channel, message, topic_id, session_user_id, emoji_id):
         existing_content = message.content
-        existing_message_string = existing_content + "\n〰〰〰〰〰\n"
+        replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, existing_content, emoji_id)
+        existing_message_string = replaced_existing + "\n〰〰〰〰〰\n"
         topic_tree = HelpBase.parse_tree()
         node = search.find(topic_tree, lambda node: f"{topic_id}<->" in node.name)
         node_name = HelpBase.get_name_for(node)[2]
-
         if node_name.startswith("<a>"):
             await HelpActions.determine_action(bot, server, channel, message, session_user_id, existing_message_string, node_name)
             await message.clear_reactions()
@@ -67,7 +67,7 @@ class HelpFactory:
                 await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
     def get_help_content(self, bot, existing_text, user_id, node, node_name, selected_emoji_version):
-        print("Helppp")
+
         topics = HelpBase.get_topics_for(node, selected_emoji_version)
         emoji_to_action = []
         message_body = ""

@@ -1,7 +1,9 @@
 
 import FileContents
+import Utilities
 from anytree import Node, RenderTree
 import random
+import re
 
 # from https://stackoverflow.com/a/68331641/14351818
 def parse_tree():
@@ -33,6 +35,67 @@ def parse_tree():
 
 parse_tree()
 
+def generate_selected_emoji_pairs(emoji_name):
+    opposite = None
+    if len(emoji_name) < 3:
+        opposite = emoji_name.removesuffix("_") + "Selected"
+
+    else:
+        if "Unselected" in emoji_name:
+            opposite = emoji_name.removesuffix("Unselected")
+        else:
+            opposite = emoji_name + "Unselected"
+
+    print(f"Opposite: {opposite}")
+    return opposite
+    
+
+# <:BotCommands:864010866051121152>
+
+
+def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_id):
+    print("replace!!")
+    existing_split = existing_text.split("〰〰〰〰〰")
+    previous_message = existing_split[-1]
+
+    p = re.compile("\<:.+\>")
+    result = p.findall(previous_message)
+
+
+    for emoji_result in result:
+        emoji_split = emoji_result.removeprefix("<:").split(":")
+        # print(f"SPLIT {emoji_split}")
+        emoji_name = emoji_split[0]
+        # print(f"Name: {emoji_name}")
+
+        new_name = generate_selected_emoji_pairs(emoji_name)
+        # print("Name..")
+        # print(new_name)
+        new_emoji = Utilities.get_emoji(bot, new_name)
+        # print("New:")
+        # print(new_emoji)
+
+        print(f"Res.. {emoji_result}")
+        print(f"new_emoji.. {new_emoji}")
+        print("prev 1...")
+        print(previous_message)
+        previous_message = previous_message.replace(str(emoji_result), f"{new_emoji}")
+        print("prev 2...")
+        print(previous_message)
+
+    print("prev...")
+    print(previous_message)
+
+    new_split = existing_split
+    new_split[-1] = previous_message
+    print("New......")
+    print(new_split)
+
+
+    # print(existing_split)
+    # print(f"COUNTTT: {len(existing_split)}")
+    return "〰〰〰〰〰".join(new_split)
+
 def get_name_for(node, selected: bool = True):
     name_split = node.name.split("<->")
     id = name_split[0]
@@ -47,12 +110,9 @@ def get_name_for(node, selected: bool = True):
         else:
             emoji_name += "_"
 
-    emoji_split = emoji_name.split("/")
-    if len(emoji_split) > 1:
-        if selected:
-            emoji_name = emoji_split[0]
-        else:
-            emoji_name = emoji_split[1]
+    else:
+        if not selected:
+            emoji_name += "Unselected"
 
     options_display_name = topic_split[1]
     title_name = topic_split[2]
