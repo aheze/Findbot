@@ -2,8 +2,7 @@ from Reactions import react
 import Permissions
 import FileContents
 import Utilities
-# import HelpContinue
-import HelpStart
+import Help
 import discord
 
 PROGRESS_EMOJI_ID = 863079541675917402
@@ -146,7 +145,7 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
 
         if session_user_id == int(user_id):
             print("getting help")
-            await HelpStart.continue_help(bot, server, channel, message, topic_id, session_user_id)
+            await Help.continue_help(bot, server, channel, message, topic_id, session_user_id)
         else:
             print("diff user")
             # if extra_instructions == "add":

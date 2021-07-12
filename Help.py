@@ -1,55 +1,174 @@
+import HelpBase
+import Utilities
+import ReactionActions
+import uuid
+from anytree import Node, RenderTree, search
 
-from anytree import Node, RenderTree
+current_help = None
+queued_message = None
+queued_server_id = None
+queued_channel_id = None
+queued_emoji_to_action = None
 
-# from https://stackoverflow.com/a/68331641/14351818
-def parse_tree():
-    with open('y_Help.txt', 'r') as file:
-        raw_lines = list(filter(None, file.readlines()))
-        file_contents = [x.rstrip() for x in raw_lines if x.rstrip()]
+async def help(bot, ctx):
+    await start_help(bot, ctx)
 
-        # initialize stack with the root node, also remove first line
-        stack = {0: Node(file_contents.pop(0))}
+async def start_help(bot, ctx):
+    topic_tree = Help.parse_tree()
 
-        for index, line in enumerate(file_contents):
-            leading_spaces = len(line) - len(line.lstrip(' '))
-            indent = int(leading_spaces / 3) # indent = 3 spaces
+    text, emoji_to_action = get_help_content(bot, "", ctx.author.id, topic_tree, topic_tree.name)
+    message = await ctx.send(text)
+    server = ctx.guild
+    channel = message.channel
+    await add_reactions(message, server.id, channel.id, emoji_to_action)
 
-            line_string = f"{index}<->{line.strip()}"
+async def continue_help(bot, server, channel, message, id, session_user_id):
+    global current_help 
+    global queued_message
+    global queued_server_id
+    global queued_channel_id
+    global queued_emoji_to_action
 
-            # add the node to the stack, set as parent the node that's one level up
-            stack[indent] = Node(line_string, parent=stack[indent-1])
+    existing_content = message.content
+    existing_message_string = existing_content + "\n\n⇣\n\n"
+    topic_tree = Help.parse_tree()
+    node = search.find(topic_tree, lambda node: f"{id}<->" in node.name)
+    node_name = Help.get_name_for(node)[2]
 
-        tree = stack[0]
-        return tree
+    text, emoji_to_action = get_help_content(bot, existing_message_string, session_user_id, node, node_name)
+    edited_message = await message.edit(content=text)
 
-parse_tree()
+    if current_help:
+        print("ongoing...")
+        # requires_perform_queued = True
+        current_help = str(uuid.uuid4())
+        queued_message = message
+        queued_server_id = server.id
+        queued_channel_id = channel.id
+        queued_emoji_to_action = emoji_to_action
+    else:
+        await message.clear_reactions()
+        await add_reactions(message, server.id, channel.id, emoji_to_action)
 
-def get_name_for(node):
-    name_split = node.name.split("<->")
-    id = name_split[0]
-    name = name_split[1]
+def get_help_content(bot, existing_text, user_id, node, node_name):
+    topics = Help.get_topics_for(node)
 
-    topic_split = name.split("~~")
-    emoji_name = topic_split[0]
-    options_display_name = topic_split[1]
-    title_name = topic_split[2]
+    emoji_to_action = []
+    message_body = ""
+    for topic in topics:
+        emoji = Utilities.get_emoji(bot, topic[0])
+        message_body += f"{emoji} {topic[1]}\n"
 
-    tuple = (emoji_name, options_display_name, title_name, id)
-    print(tuple)
-    return tuple
+        emoji_action = f"help.{topic[3]}.{user_id}"
+        emoji_to_action.append((emoji, emoji_action))
 
-def get_topics_for(tree):
-    tuples = []
-    for topic in tree.children:
-        tuple = get_name_for(topic)
-        tuples.append(tuple)
+    message_string = f"{node_name}\n{message_body}"
+    new_message_string = f"{existing_text}{message_string}"
+    return (new_message_string, emoji_to_action)
 
-    return tuples
+async def add_reactions(message, server_id, channel_id, emoji_to_action):
+    global current_help 
 
-    # path_array = [node.name for node in topic.path]
-    #     path_string = "".join(path_array)
-    #     print(path_string)
+    instance_uuid = str(uuid.uuid4())
+    current_help = instance_uuid
+
+    for emoji, action in emoji_to_action:
+        if current_help == instance_uuid:
+            ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
+            await message.add_reaction(emoji)
+        else:
+            await message.clear_reactions()
+            await perform_queued_continue()
+            break
     
+    current_help = None
+
+
+async def perform_queued_continue():
+    global current_help 
+    global queued_message
+    global queued_server_id
+    global queued_channel_id
+    global queued_emoji_to_action
+
+    await add_reactions(
+        queued_message,
+        queued_server_id,
+        queued_channel_id,
+        queued_emoji_to_action
+    )
+
+    current_help = None
+    queued_message = None
+    queued_server_id = None
+    queued_channel_id = None
+    queued_emoji_to_action = None
+
+    # if 
 
 
 
+    # instance_uuid = str(uuid.uuid4())
+    # current_help = instance_uuid
+
+    # topic_tree = Help.parse_tree()
+    # topics = Help.get_topics_for(topic_tree) # array of tuples
+    # print(topics)
+
+    # emoji_and_action = []
+    # message_body = ""
+    # for topic in topics:
+    #     emoji = Utilities.get_emoji(bot, topic[0])
+    #     message_body += f"{emoji} {topic[1]}\n"
+
+    #     emoji_action = f"help.{topic[3]}.{ctx.author.id}"
+    #     emoji_and_action.append((emoji, emoji_action))
+
+    # message_string = f"{topic_tree.name}\n{message_body}"
+    # message = await ctx.send(message_string)
+
+    # server = ctx.guild
+    # channel = message.channel
+
+    # for emoji, action in emoji_and_action:
+    #     if current_help == instance_uuid:
+    #         ReactionActions.save_reaction_action(server.id, channel.id, message.id, emoji.id, action)
+    #         await message.add_reaction(emoji)
+    #     else:
+    #         print("New...")
+
+
+# async def continaue_help(bot, message, id, session_user_id):
+#     print("h")
+#     print(message.content)
+
+#     existing_content = message.content
+#     existing_message_string = existing_content + "\n\n⇣\n\n"
+
+#     topic_tree = Help.parse_tree()
+    
+#     node = search.find(topic_tree, lambda node: f"{id}<->" in node.name)
+#     node_name = Help.get_name_for(node)[2]
+
+#     print(RenderTree(node))
+#     topics = Help.get_topics_for(node) # array of tuples
+
+#     emoji_and_action = []
+#     message_body = ""
+#     for topic in topics:
+#         emoji = Utilities.get_emoji(bot, topic[0])
+
+#         print("Emo... ")
+#         print(emoji)
+
+#         message_body += f"{emoji} {topic[1]}\n"
+
+#         emoji_action = f"help.{topic[3]}.{session_user_id}"
+#         emoji_and_action.append((emoji, emoji_action))
+
+#     message_string = f"{node_name}\n{message_body}"
+#     new_message_string = f"{existing_message_string}{message_string}"
+#     edited_message = await message.edit(content=new_message_string)
+
+
+# returns a message + map of emoji to action
