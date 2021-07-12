@@ -29,8 +29,11 @@ class HelpFactory:
     async def start_help(self, bot, ctx):
         global session_message_id
         topic_tree = HelpBase.parse_tree()
+        name = topic_tree.name
+        greeting = HelpBase.random_greeting(ctx.author.mention)
+        name = name.replace("<Hello>", greeting)
 
-        text, emoji_to_action = self.get_help_content(bot, "", ctx.author.id, topic_tree, topic_tree.name)
+        text, emoji_to_action = self.get_help_content(bot, "", ctx.author.id, topic_tree, name, True)
         message = await ctx.send(text)
         self.session_message_id = message.id
 
@@ -40,17 +43,17 @@ class HelpFactory:
 
     async def continue_help(self, bot, server, channel, message, topic_id, session_user_id):
         existing_content = message.content
-        existing_message_string = existing_content + "\n\n⇣\n\n"
+        existing_message_string = existing_content + "\n〰〰〰〰〰\n"
         topic_tree = HelpBase.parse_tree()
         node = search.find(topic_tree, lambda node: f"{topic_id}<->" in node.name)
         node_name = HelpBase.get_name_for(node)[2]
 
         if node_name.startswith("<a>"):
-            HelpActions.determine_action(bot, server, channel, message, session_user_id, existing_message_string, node_name)
+            await HelpActions.determine_action(bot, server, channel, message, session_user_id, existing_message_string, node_name)
             await message.clear_reactions()
         else:
-            text, emoji_to_action = self.get_help_content(bot, existing_message_string, session_user_id, node, node_name)
-            edited_message = await message.edit(content=text)
+            text, emoji_to_action = self.get_help_content(bot, existing_message_string, session_user_id, node, node_name, False)
+            await message.edit(content=text)
 
             if self.current_help:
                 self.current_help = str(uuid.uuid4())
@@ -63,10 +66,9 @@ class HelpFactory:
                 await message.clear_reactions()
                 await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
-    def get_help_content(self, bot, existing_text, user_id, node, node_name):
-        topics = HelpBase.get_topics_for(node)
-        print("topics:")
-        print(topics)
+    def get_help_content(self, bot, existing_text, user_id, node, node_name, selected_emoji_version):
+        print("Helppp")
+        topics = HelpBase.get_topics_for(node, selected_emoji_version)
         emoji_to_action = []
         message_body = ""
         for topic in topics:
@@ -77,7 +79,7 @@ class HelpFactory:
             emoji_to_action.append((emoji, emoji_action))
 
         message_string = f"{node_name}\n{message_body}"
-        new_message_string = f"{existing_text}{message_string}"
+        new_message_string = f"{existing_text}{message_string}\n"
         return (new_message_string, emoji_to_action)
 
     async def add_reactions(self, message, server_id, channel_id, emoji_to_action):
@@ -94,6 +96,10 @@ class HelpFactory:
                 has_conflict = True
                 break
         
+        if self.current_help != instance_uuid:
+            print("Confl")
+            has_conflict = True
+
         if has_conflict:
             await message.clear_reactions()
             await self.perform_queued_continue()

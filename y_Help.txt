@@ -1,8 +1,11 @@
-Hi I'm Findbot, what can I help you with?
-   BotCommands~~Bot Commands~~You've selected bot commands!
-      Option1~~Color~~<a>color
-      Option2~~Ping~~<a>ping
-   ServerInformation~~Server Information~~You've selected Server Information!
-   StatsChart~~Server/App stats~~You've selected stats
-   RoleInformation~~Role Information~~You've selected role info
-   CustomQuestion~~Ask a custom question~~<a>sendCustom
+<Hello>
+   BotCommands/BotCommandsUnselected~~Bot Commands~~Press a reaction to get info on a specific command:
+      1~~`.color`~~Show the given color.<n>Example usage:<n>```.color 00aeef```
+      2~~`.ping`~~Respond with "pong".<n>Example usage:<n>```.ping```
+      3~~`.how`~~Read a tutorial! The current available tutorials are ```<n>rate<n>find<n>demo<n>nino<n>"how to beat touhou"<n>tutorial```<n>Example usage:<n>```.how rate```<n>*Tip:* Type `.how tutorial` to get instructions on how to make your own tutorial!
+      4~~`.pfp`~~Get a fellow server membet's pfp.<n>Example usage:<n>```.pfp @aheze```
+      5~~`.help`~~Show this message.<n>Example usage:<n>```.help```
+   ServerInformation/ServerInformationUnselected~~Server Information~~[Under construction, check back soon or ping <aheze>!]
+   StatsChart/StatsChartUnselected~~Server/App stats~~[Under construction, check back soon or ping <aheze>!]
+   RoleInformation/RoleInformationUnselected~~Role Information~~Check out the roles in <#858029544875622410>!
+   CustomQuestion/CustomQuestionUnselected~~Ask a custom question~~Please DM <aheze> or ping him in <#858029742560772126>.

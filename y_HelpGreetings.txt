@@ -1,0 +1,22 @@
+Hello <m>, what can I help you with?
+Hey <m>, what can I help you with?
+Hello <m>, what's up? Choose a reaction below.
+Hi <m>, what's up? Choose a reaction below.
+What's up <m>? I can help you with these:
+Ask me anything <m>:
+Sup <m>, ask me anything.
+<m>, what is it this time...?
+I'm here for you, <m>. Choose a reaction:
+<m>, need help? I'm an expert in these:
+Thanks for calling me, <m>. What's up?
+What is up <m>. Choose something here:
+<m>, you called? I can help with these:
+Hey <m>! Need help?
+Hello <m>! Choose a reaction:
+Hi <m>! Select an option below:
+<m>, I exist to serve you. What's up?
+What's up <m>! Try any of the below options:
+Hey <m> what's up? Choose a reaction:
+<m> I can help you whenever you're ready.
+[<m>] began new help session *beep beep*
+Hi <m>, what's up?
