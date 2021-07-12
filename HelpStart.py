@@ -4,8 +4,9 @@ import ReactionActions
 import uuid
 from anytree import Node, RenderTree, search
 
-current_help = ""
+current_help = None
 
+# requires_perform_queued = False
 queued_message = None
 queued_server_id = None
 queued_channel_id = None
@@ -25,6 +26,11 @@ async def start_help(bot, ctx):
 
 async def continue_help(bot, server, channel, message, id, session_user_id):
     global current_help 
+    # global requires_perform_queued
+    global queued_message
+    global queued_server_id
+    global queued_channel_id
+    global queued_emoji_to_action
 
     existing_content = message.content
     existing_message_string = existing_content + "\n\n⇣\n\n"
@@ -37,20 +43,23 @@ async def continue_help(bot, server, channel, message, id, session_user_id):
 
     if current_help:
         print("ongoing...")
+        # requires_perform_queued = True
+        current_help = str(uuid.uuid4())
         queued_message = message
         queued_server_id = server.id
         queued_channel_id = channel.id
         queued_emoji_to_action = emoji_to_action
     else:
+        await message.clear_reactions()
         await add_reactions(message, server.id, channel.id, emoji_to_action)
 
-    print("STOPPPP... old,")
-    print(current_help)
-    current_help = str(uuid.uuid4())
+    # print("STOPPPP... old,")
+    # print(current_help)
+    
 
-    print("STOPPPP... new,")
-    print(current_help)
-    await message.clear_reactions()
+    # print("STOPPPP... new,")
+    # print(current_help)
+    
 
 def get_help_content(bot, existing_text, user_id, node, node_name):
     topics = Help.get_topics_for(node)
@@ -81,13 +90,34 @@ async def add_reactions(message, server_id, channel_id, emoji_to_action):
             await message.add_reaction(emoji)
         else:
             print("New...")
+            await message.clear_reactions()
+            await perform_queued_continue()
+
             break
 
+    
     current_help = ""
 
 
-def perform_queued_continue():
+async def perform_queued_continue():
+    global current_help 
+    global queued_message
+    global queued_server_id
+    global queued_channel_id
+    global queued_emoji_to_action
 
+    await add_reactions(
+        queued_message,
+        queued_server_id,
+        queued_channel_id,
+        queued_emoji_to_action
+    )
+
+    current_help = None
+    queued_message = None
+    queued_server_id = None
+    queued_channel_id = None
+    queued_emoji_to_action = None
 
     # if 
 
