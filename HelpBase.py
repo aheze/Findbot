@@ -35,15 +35,15 @@ def parse_tree():
 
 parse_tree()
 
-def generate_selected_emoji_pairs(emoji_name):
-    opposite = None
+def toggle_emoji(emoji_name, selected_emoji_name):
+    print("sel")
+    print(selected_emoji_name)
+    opposite = emoji_name
     if len(emoji_name) < 3:
-        opposite = emoji_name.removesuffix("_") + "Selected"
-
+        if selected_emoji_name == emoji_name:
+            opposite = emoji_name.removesuffix("_") + "Selected"
     else:
-        if "Unselected" in emoji_name:
-            opposite = emoji_name.removesuffix("Unselected")
-        else:
+        if selected_emoji_name not in emoji_name:
             opposite = emoji_name + "Unselected"
 
     print(f"Opposite: {opposite}")
@@ -68,10 +68,13 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
         emoji_name = emoji_split[0]
         # print(f"Name: {emoji_name}")
 
-        new_name = generate_selected_emoji_pairs(emoji_name)
+        
         # print("Name..")
-        # print(new_name)
+        # print(new_name)        
+        selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
+        new_name = toggle_emoji(emoji_name, selected_emoji.name)
         new_emoji = Utilities.get_emoji(bot, new_name)
+
         # print("New:")
         # print(new_emoji)
 
