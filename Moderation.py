@@ -264,36 +264,10 @@ async def check_censor(bot, message):
     channel = message.channel
     member = server.get_member(author.id)
     member_roles = [role for role in member.roles if role.name == "Developer"]
-    # is_dev = len(member_roles) > 0
+    is_dev = len(member_roles) > 0
 
-    # new_message = message.content
-    # for map in bad_word_to_alternatives:
-    #     pattern = re.compile(map[0], re.IGNORECASE)
-    #     if is_dev:
-    #         new_message = pattern.sub(f"__*{map[2]}*__", new_message)
-    #     else:
-    #         new_message = pattern.sub(f"__*{map[1]}*__", new_message)
+    (bad_words, replacement) = check_bad_words(message_input, is_dev)
 
-    print("replace")
-    (bad_words, replacement) = check_bad_words(message_input)
-    # print(bad_words, replacement)
-
-    print(f"Bad w{bad_words}")
-
-
-
-    # found_bad_words = re.findall(regexbadwords, new_message, re.IGNORECASE)
-    # for match in re.finditer(regexbadwords, new_message, re.IGNORECASE):
-    #     print("Found:")
-    #     print(match.group(0))
-    #     replacement_stub = Utilities.random_message("swear")
-    #     replacement = f"__*[{replacement_stub}](https://getfind.app/)*__"
-    #     new_message = new_message.replace(match.group(0), replacement)
-    #     bad_words.append(match.group(0))
-
-    # subbed_message = re.subn(regexbadwords, f"__*[{replacement}](https://getfind.app/)*__", new_message, 0, re.IGNORECASE)
-    # new_message = subbed_message[0]
-    # number_of_replacements = subbed_message[1]
     if len(bad_words) > 0:
 
         embed = discord.Embed(description=replacement, color=COLOR_YELLOW)
@@ -339,19 +313,22 @@ async def check_censor(bot, message):
                     await log_channel.send(embed=embed_log)
                     break
 
-def check_bad_words(input_str):
+def check_bad_words(input_str, is_dev):
     new_string = input_str
 
     # (filter name, user bad word,)
     bad_words = []
-
 
     for match in re.finditer(regexbadwords, input_str, re.IGNORECASE):
         match_name = match.lastgroup[:-1]
         match_text = match.group(0)
 
         replacements = word_map.get(match_name, ("getfind.app", "getfind.app"))
-        replacement = replacements[0]
+        
+        if is_dev:
+            replacement = replacements[1]
+        else:
+            replacement = replacements[0]
 
         replacement_length = len(replacement)
         original_length = len(match_text)
