@@ -2,7 +2,6 @@
 import FileContents
 import Utilities
 from anytree import Node, RenderTree
-import random
 import re
 
 # from https://stackoverflow.com/a/68331641/14351818
@@ -36,8 +35,6 @@ def parse_tree():
 parse_tree()
 
 def toggle_emoji(emoji_name, selected_emoji_name):
-    print("sel")
-    print(selected_emoji_name)
     opposite = emoji_name
     if len(emoji_name) < 3:
         if selected_emoji_name == emoji_name:
@@ -46,7 +43,6 @@ def toggle_emoji(emoji_name, selected_emoji_name):
         if selected_emoji_name not in emoji_name:
             opposite = emoji_name + "Unselected"
 
-    print(f"Opposite: {opposite}")
     return opposite
     
 
@@ -54,7 +50,6 @@ def toggle_emoji(emoji_name, selected_emoji_name):
 
 
 def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_id):
-    print("replace!!")
     existing_split = existing_text.split("〰〰〰〰〰")
     previous_message = existing_split[-1]
 
@@ -64,39 +59,16 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
 
     for emoji_result in result:
         emoji_split = emoji_result.removeprefix("<:").split(":")
-        # print(f"SPLIT {emoji_split}")
         emoji_name = emoji_split[0]
-        # print(f"Name: {emoji_name}")
-
-        
-        # print("Name..")
-        # print(new_name)        
         selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
         new_name = toggle_emoji(emoji_name, selected_emoji.name)
         new_emoji = Utilities.get_emoji(bot, new_name)
 
-        # print("New:")
-        # print(new_emoji)
-
-        print(f"Res.. {emoji_result}")
-        print(f"new_emoji.. {new_emoji}")
-        print("prev 1...")
-        print(previous_message)
         previous_message = previous_message.replace(str(emoji_result), f"{new_emoji}")
-        print("prev 2...")
-        print(previous_message)
-
-    print("prev...")
-    print(previous_message)
 
     new_split = existing_split
     new_split[-1] = previous_message
-    print("New......")
-    print(new_split)
 
-
-    # print(existing_split)
-    # print(f"COUNTTT: {len(existing_split)}")
     return "〰〰〰〰〰".join(new_split)
 
 def get_name_for(node, selected: bool = True):
@@ -131,12 +103,7 @@ def get_topics_for(tree, selected_emoji_version):
 
     return tuples
 
-def random_greeting(user_mention):
-    with open('y_HelpGreetings.txt', 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-        greeting = random.choice(file_contents)
-        message_string = greeting.replace("<m>", user_mention)
-        return message_string
+
 
     
 

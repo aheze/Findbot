@@ -1,3 +1,5 @@
+import re
+from discord import channel
 import ReactionActions
 import ModerationStorage
 import FileContents
@@ -14,26 +16,36 @@ COLOR_RED = 0xff0000
 
 GREEN = "<:Green:860713764742496258>"
 GREEN_ID = "860713764742496258"
+TRASH = "<:Trash:864378434980282369>"
+TRASH_ID = 864378434980282369
 MUTED_ID = 861271876185751553
 MEMBER_ROLE_ID = 862919875060039680
 
-with open('BadWords.txt', 'r') as f:
-    global badwords  # You want to be able to access this throughout the code
-    badwords = f.read().splitlines()
+# word_map = {}
+# with open('BadWords.txt', 'r') as f:
+#     badwords = f.read().splitlines()
+#     for word in badwords:
+#         word_split = word.split("/")
+#         checking_bad_word = word_split[0]
+#         alternatives = (word_split[1], word_split[2])
+#         word_map[checking_bad_word] = alternatives
+        
 
-async def handle_message_delete(bot, payload):
-    print("delete!a")
-    if payload.guild_id:
-        guild = bot.get_guild(payload.guild_id)
-        channel = bot.get_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        print("message")
-        print(message)
-        # if guild.name == "Server Name":
-        #     if message.author.bot: # more pythonic way of checking bools
-        #         print("bot deleted")
-        #     else:
-        #         print(...
+word_map = {}
+
+with open('BadWords.txt', 'r') as f:
+    badwords = f.read().splitlines()
+    for word in badwords:
+        word_split = word.split("/")
+        checking_bad_word = word_split[0]
+        alternatives = (word_split[1], word_split[2])
+        word_map[checking_bad_word] = alternatives
+
+    print(word_map)
+
+with open('y_RegexBadWords.txt', 'r') as f:
+    global regexbadwords  # You want to be able to access this throughout the code
+    regexbadwords = f.read()
 
 async def give_all_member(ctx):
     server = ctx.guild
@@ -148,7 +160,6 @@ async def unmute(bot, ctx, user: discord.User, args):
     await log_channel.send(embed=embed_log)
 
     role_ids = ModerationStorage.get_roles_from_storage(user.id)
-    print(role_ids)
     for role_id in role_ids:
         role = discord.utils.get(server.roles, id=int(role_id))
         await member.add_roles(role)
@@ -237,54 +248,122 @@ async def mute(bot, ctx, user: discord.User, args):
 
     await log_channel.send(embed=embed_log)
 
-
-
 async def check_censor(bot, message):
-    pass
-    # msg = message.content.split()
-    # msg_lower = [x.lower() for x in msg]
 
-    # bad_word = ""
-    # for word in badwords:
-    #     if word.lower() in msg_lower:
-    #         print(f"Bad word: {word}, in {msg}")
-    #         bad_word = word
-    #         break
+    print("check")
     
-    # if bad_word != "":
-    #     channel = message.channel
+    message_input = message.content.lower()
+    # msg_split = message.content.split()
+    # msg_lower_split = [x.lower() for x in msg_split]
 
-    #     if message.author.id == 122607569603657728:
-    #         print("Yep!")
-    #         embed = discord.Embed(description=f"{message.author.mention}, you shouldn't don't say that, but you have a free pass!", color=COLOR_RED)
-    #         embed.set_footer(text=f"React with the check to dismiss")
+
+    # bad_word_to_alternatives = []
+
+    author = message.author
+    server = message.guild
+    channel = message.channel
+    member = server.get_member(author.id)
+    member_roles = [role for role in member.roles if role.name == "Developer"]
+    # is_dev = len(member_roles) > 0
+
+    # new_message = message.content
+    # for map in bad_word_to_alternatives:
+    #     pattern = re.compile(map[0], re.IGNORECASE)
+    #     if is_dev:
+    #         new_message = pattern.sub(f"__*{map[2]}*__", new_message)
     #     else:
-    #         embed = discord.Embed(description=f"{message.author.mention}, don't say that >:(", color=COLOR_RED)
-    #         embed.set_footer(text=f"React with the check to dismiss")
-    #         await message.delete()
+    #         new_message = pattern.sub(f"__*{map[1]}*__", new_message)
+
+    print("replace")
+    (bad_words, replacement) = check_bad_words(message_input)
+    # print(bad_words, replacement)
+
+    print(f"Bad w{bad_words}")
+
+
+
+    # found_bad_words = re.findall(regexbadwords, new_message, re.IGNORECASE)
+    # for match in re.finditer(regexbadwords, new_message, re.IGNORECASE):
+    #     print("Found:")
+    #     print(match.group(0))
+    #     replacement_stub = Utilities.random_message("swear")
+    #     replacement = f"__*[{replacement_stub}](https://getfind.app/)*__"
+    #     new_message = new_message.replace(match.group(0), replacement)
+    #     bad_words.append(match.group(0))
+
+    # subbed_message = re.subn(regexbadwords, f"__*[{replacement}](https://getfind.app/)*__", new_message, 0, re.IGNORECASE)
+    # new_message = subbed_message[0]
+    # number_of_replacements = subbed_message[1]
+    if len(bad_words) > 0:
+
+        embed = discord.Embed(description=replacement, color=COLOR_YELLOW)
+        embed.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+        await message.delete()
             
-    #     warning_message = await channel.send(embed=embed)
-    #     warning_channel = warning_message.channel
-    #     warning_server = warning_channel.guild
+        warning_message = await channel.send(embed=embed)
+        warning_channel = warning_message.channel
+        warning_server = warning_channel.guild
 
-    #     ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, GREEN_ID, "delete")
-    #     await warning_message.add_reaction(GREEN)
+        # ReactionActions.save_reaction_action(warning_server.id, warning_channel.id, warning_message.id, TRASH_ID, "delete")
+        # await warning_message.add_reaction(TRASH)
 
-    #     with open('z_ServerConfig.txt', 'r') as file:
-    #         file_contents = FileContents.get_file_contents(file)
+        with open('z_ServerConfig.txt', 'r') as file:
+            file_contents = FileContents.get_file_contents(file)
 
-    #         for line in file_contents:
-    #             if "modlog:" in line:
-    #                 line_split = line.split(":")
-    #                 server_id = int(line_split[1])
-    #                 channel_id = int(line_split[2])
+            for line in file_contents:
+                if "modlog:" in line:
+                    embed_description = message.content
 
-    #                 log_server = bot.get_guild(server_id)
-    #                 log_channel = log_server.get_channel(channel_id)
+                    generic_bad_words = [x[0] for x in bad_words]
+                    original_bad_words = [x[1] for x in bad_words]
+                    cleaned_bad_words = list(set(original_bad_words))
 
-    #                 embed_log = discord.Embed(title="Censored Message:", description=f"{message.content}", color=COLOR_RED)
-    #                 embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
-    #                 embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
-    #                 embed_log.set_footer(text=f"Censored word: {bad_word}")
-    #                 await log_channel.send(embed=embed_log)
-    #                 break
+                    print(f"gen: {generic_bad_words}")
+                    print(f"Original: {cleaned_bad_words}")
+                    for original in cleaned_bad_words:
+                        # embed_description = embed_description.replace(original, f"__*{original}*__")
+                        embed_description = re.sub(original, f"__*{original}*__", embed_description, flags=re.IGNORECASE)
+
+
+                    line_split = line.split(":")
+                    server_id = int(line_split[1])
+                    channel_id = int(line_split[2])
+
+                    log_server = bot.get_guild(server_id)
+                    log_channel = log_server.get_channel(channel_id)
+
+                    embed_log = discord.Embed(title="Censored Message:", description=embed_description, color=COLOR_RED)
+                    embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
+                    embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
+                    embed_log.set_footer(text=f"Censored words: {generic_bad_words}")
+                    await log_channel.send(embed=embed_log)
+                    break
+
+def check_bad_words(input_str):
+    new_string = input_str
+
+    # (filter name, user bad word,)
+    bad_words = []
+
+
+    for match in re.finditer(regexbadwords, input_str, re.IGNORECASE):
+        match_name = match.lastgroup[:-1]
+        match_text = match.group(0)
+
+        replacements = word_map.get(match_name, ("getfind.app", "getfind.app"))
+        replacement = replacements[0]
+
+        replacement_length = len(replacement)
+        original_length = len(match_text)
+
+        full_replacement = replacement
+        if replacement_length < original_length:
+            needed_count = original_length - replacement_length
+            extra_characters = replacement[-1] * needed_count
+            full_replacement += extra_characters
+
+        new_string = new_string.replace(match_text, full_replacement)
+
+        bad_words.append((match_name, match_text))
+
+    return (bad_words, new_string)

@@ -1,68 +1,58 @@
-asd
-anal
-anus
-arse
-ass
-ballsack
-balls
-bastard
-bitch
-biatch
-bloody
-blowjob
-blow job
-bollock
-bollok
-boner
-boob
-bugger
-bum
-butt
-buttplug
-clitoris
-cock
-coon
-crap
-cunt
-dick
-dildo
-dyke
-fag
-feck
-fellate
-fellatio
-felching
-fuck
-f u c k
-fudgepacker
-fudge packer
-flange
-Goddamn
-God damn
-jerk
-jizz
-knobend
-knob end
-labia
-muff
-nigger
-nigga
-penis
-piss
-pube
-pussy
-queer
-sex
-shit
-s hit
-sh1t
-slut
-smegma
-spunk
-tit
-tosser
-turd
-twat
-vagina
-wank
-whore
+anal/anol/a nil
+anus/anos/and is
+arse/arso/art
+ass/bass/app/SSA
+ballsack/ballsoop/sackoverflow
+bastard/basord/backend
+beastiality/boostily/bootstraply
+bitch/bonch/bench
+biatch/boonch/biench
+blowjob/bloobjoe/bool
+blow job/bloob joe/boolean
+boner/boomer/bootstrap
+boob/bloob/byte
+bum/bom/bug
+buttplug/bootploot/build
+clit/clooboroos/camelcase
+cock/cook/compiler
+condom/condominium/computer
+coon/coom/click
+crap/croop/cool app
+cum/cream/code
+cunt/coomt/call
+damn/dang/DNS
+dick/dook/database
+dildo/doodo/data
+dyke/dook/debug
+fag/foog/frontend
+feck/fook/frobulate
+fellate/felloot/for loop
+fellatio/fellootoo/endless for loop
+felching/fooching/function
+fuck/foob/func
+gangbang/water gang/GitHub
+homo/hodo/HTML
+horny/frustrated/hardcody
+jackoff/jooboof/javascript
+jizz/jooz/java
+knobend/noobend/kargs
+knob end/noob end/k args
+labia/loobo/linux
+nigger/nooger/node.js
+orgasm/ooogooboogoo/Big O
+penis/ponus/packet
+piss/poos/PHP
+porn/pom/postgresql
+pube/poob/python
+pussy/plooby/pointer
+queer/quiero/queue
+sex/🎷/SCSS
+shit/shoot/scratch
+slut/sloomp/server
+tit/toot/token
+tosser/toother/terminal
+twat/twoot/try catch
+vagina/vagoon/variable
+wank/woonk/wifi
+whore/where/while loop
+other/getfind.app/getfind.app

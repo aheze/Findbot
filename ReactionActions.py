@@ -1,4 +1,4 @@
-from Reactions import react
+import Reactions
 import Permissions
 import FileContents
 import Utilities
@@ -6,6 +6,9 @@ import Help
 import discord
 
 PROGRESS_EMOJI_ID = 863079541675917402
+EVENT_NAME = "Funcing destroy the bot"
+EVENT_DESCRIPTION = "Exploit <@784531493204262942>'s censoring loopholes: **get 1 point** for every should-be-censored word or false positive! Spam test words in <#864710025460187156>. Challenge ends July 15th, 11:59 PM PST."
+EVENT_FOOTER = 'Be at the top to get the "Beta Tester" role!'
 
 def read_reaction_line(line):
     components = line.strip().split(":", 2) # address : emoji ID : action
@@ -58,10 +61,127 @@ def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, fi
             string = f"{message_address}:{emoji_id}:{action}\n"
             file.write(string)
 
-async def determine_reaction_action(bot, payload, add_instructions):
+def index_containing_substring(the_list, substring):
+    for i, s in enumerate(the_list):
+        if substring in s:
+              return i
+    return -1
 
+async def event_leaderboard(bot, ctx, ping = None):
+    with open("z_Events.txt", 'r') as file:
+
+        leaderboard = []
+        file_contents = FileContents.get_file_contents(file)
+        for line in file_contents:
+            line_split = line.split(":")
+            user_id = int(line_split[0])
+            user = bot.get_user(user_id)
+            number = int(line_split[1])
+
+            tuple = (user, number)
+            leaderboard.append(tuple)
+
+        leaderboard.sort(key=lambda tup: tup[1], reverse=True)  # sorts in place
+
+        leaderboard_description = ""
+        for (index, tuple) in enumerate(leaderboard):
+            user = tuple[0]
+            points = tuple[1]
+
+            starting_trophy = ""
+            if index == 0:
+                starting_trophy = Utilities.get_emoji(bot, "First")
+            elif index == 1:
+                starting_trophy = Utilities.get_emoji(bot, "Second")
+            elif index == 2:
+                starting_trophy = Utilities.get_emoji(bot, "Third")
+            else:
+                starting_trophy = Utilities.get_emoji(bot, "NotSelected")
+
+            new_line = ""
+            if points == 1:
+                new_line += f"{starting_trophy} {points} point: "
+            else:
+                new_line += f"{starting_trophy} {points} points: "
+
+            if ping:
+                new_line += f"{user.mention}\n"
+            else:
+                new_line += f"**{user.name}**\n"
+
+            leaderboard_description += new_line
+
+        description_start = EVENT_DESCRIPTION
+        description = f"{description_start}\n\n{leaderboard_description}"
+
+        channel = ctx.channel
+        embed = discord.Embed(title=f'Leaderboard for the "{EVENT_NAME}" event!', description=description, color=0xebc334)
+        embed.set_footer(text=EVENT_FOOTER)
+
+        await channel.send(embed=embed)
+
+async def determine_reaction_action(bot, payload, add_instructions):
     reacted_message_id = payload.message_id
     reacted_emoji = payload.emoji
+    
+    reaction_user_id = payload.user_id
+    server = bot.get_guild(payload.guild_id)
+    reaction_member = server.get_member(reaction_user_id)
+    
+    if not Permissions.check_no_permissions(reaction_member):
+        if reacted_emoji.name == "Plus1" or reacted_emoji.name == "Finder":
+            channel = server.get_channel(payload.channel_id)
+            message = await channel.fetch_message(reacted_message_id)
+            message_user_id = message.author.id
+
+            if add_instructions == "add":
+                new_file_contents = []
+                with open("z_Events.txt", 'r') as file:
+                    file_contents = FileContents.get_file_contents(file)
+                    new_file_contents = file_contents
+
+                    matching_user_index = index_containing_substring(file_contents, str(message_user_id))
+                    if matching_user_index == -1:
+                        new_file_contents.append(f"{message_user_id}:1")
+                    else:
+                        line = new_file_contents[matching_user_index]
+                        line_split = line.split(":")
+                        number = int(line_split[1])
+                        if reacted_emoji.name == "Plus1":
+                            number += 1
+                        else:
+                            number += 3
+                        combined = f"{message_user_id}:{number}"
+                        new_file_contents[matching_user_index] = combined
+
+                with open("z_Events.txt", 'w') as file:
+                    combined = FileContents.combine_file_contents(new_file_contents)
+                    file.write(combined)
+
+                with open('z_Output.txt', 'a') as file:
+                    string = f"{message.jump_url}\n"
+                    file.write(string)
+            else:
+                new_file_contents = []
+                with open("z_Events.txt", 'r') as file:
+                    file_contents = FileContents.get_file_contents(file)
+                    new_file_contents = file_contents
+
+                    matching_user_index = index_containing_substring(file_contents, str(message_user_id))
+                    if matching_user_index != -1:
+                        line = new_file_contents[matching_user_index]
+                        line_split = line.split(":")
+                        number = int(line_split[1])
+                        if reacted_emoji.name == "Plus1":
+                            number -= 1
+                        else:
+                            number -= 3
+                        combined = f"{message_user_id}:{number}"
+                        new_file_contents[matching_user_index] = combined
+
+                with open("z_Events.txt", 'w') as file:
+                    combined = FileContents.combine_file_contents(new_file_contents)
+                    file.write(combined)
 
     async def read_file(file):
         file_contents = FileContents.get_file_contents(file)
@@ -143,6 +263,7 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
         session_user_id = int(action_split[2].strip())
 
         if session_user_id == int(user_id):
+            cleanup_message_reactions(server_id, channel_id, message_id)
             await Help.continue_help(bot, server, channel, message, topic_id, session_user_id, emoji_id)
         else:
             if extra_instructions == "add":
@@ -160,6 +281,19 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
                 await message.remove_reaction(progress_reaction, bot.user)
 
 
+def cleanup_message_reactions(server_id, channel_id, message_id):
+    message_address = f"{server_id}/{channel_id}/{message_id}"
+    new_file_contents = []
+    with open('z_ReactionActions.txt', 'r') as file:
+        file_contents = FileContents.get_file_contents(file)
+        
+        for line in file_contents:
+            if message_address not in line:
+                new_file_contents.append(line)
+
+    with open('z_ReactionActions.txt', 'w') as file:
+        combined = FileContents.combine_file_contents(new_file_contents)
+        file.write(combined)
 
 def cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_string):
     message_address = f"{server_id}/{channel_id}/{message_id}"

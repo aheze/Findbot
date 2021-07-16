@@ -51,9 +51,14 @@ async def get_pfp(ctx, user: discord.User):
     await Misc.get_pfp(ctx, user)
 
 @bot.command(name='help')
-async def get_pfp(ctx):
+async def help(ctx):
     print("help...")
     await Help.help(bot, ctx)
+
+@bot.command(name='resethelp')
+async def remove_lingering_helps(ctx):
+    await Help.remove_lingering_helps()
+
 
 @bot.command(name='color')
 async def get_color(ctx, color: str):
@@ -117,8 +122,14 @@ async def set_modlog(ctx, channel: discord.TextChannel):
     if Permissions.check_no_admin_permissions(ctx.author): return
     await Moderation.set_modlog(ctx, channel)
 
+@bot.command(name='eventleaderboard')
+async def set_modlog(ctx, ping=None):
+    if Permissions.check_no_permissions(ctx.author): return
+    await ReactionActions.event_leaderboard(bot, ctx, ping)
+
 @bot.event
 async def on_message(message):
+    if message.channel.id == 864251261532373012: return
     if message.author == bot.user: return
     if Permissions.check_no_admin_permissions(message.author) == False: 
         await bot.process_commands(message) # Needed to allow other commands to work
@@ -144,13 +155,10 @@ async def on_member_join(member):
     await Moderation.give_member_role(member)
 
 @bot.event
-async def on_raw_message_delete(payload):
-    await Moderation.handle_message_delete(bot, payload)
-
-@bot.event
 async def on_ready():
     print(f"Ready - {INFO}!")
-    await TimedActions.check_timed_actions(bot)
+    asyncio.create_task(TimedActions.check_timed_actions(bot))
+    asyncio.create_task(Help.clean_up_helps())
 
 @bot.event
 async def on_command_error(ctx, error):

@@ -25,12 +25,19 @@ def remove_timed_actions(keywords):
         file.write(combined)
 
 def save_timed_action(time, action):
-    delay_time_string = time.strftime(TIME_FORMATTING)
+    delay_time_string = convert_date_to_string(time)
     with open('z_TimedActions.txt', 'a') as file:
         string = f"{delay_time_string}:{action}\n"
         file.write(string)
 
+def convert_string_to_date(date_string):
+    date = datetime.strptime(date_string, TIME_FORMATTING)
+    return date
 
+def convert_date_to_string(date):
+    string = date.strftime(TIME_FORMATTING)
+    return string
+    
 async def check_timed_actions(bot):
     while True:
         new_file_contents = []
@@ -39,7 +46,7 @@ async def check_timed_actions(bot):
             
             for line in file_contents:
                 components = line.strip().split(":") # 0 is time, 1 is action
-                time = datetime.strptime(components[0], TIME_FORMATTING)
+                time = convert_string_to_date(components[0])
                 if datetime.now() > time: # execute action, delete line
                     action_string = components[1]
                     action_split = action_string.split(".")
@@ -58,6 +65,5 @@ async def check_timed_actions(bot):
         with open('z_TimedActions.txt', 'w') as file:
             combined = FileContents.combine_file_contents(new_file_contents)
             file.write(combined)
-
 
         await asyncio.sleep(5)

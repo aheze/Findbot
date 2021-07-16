@@ -1,3 +1,4 @@
+{greetings}
 Hello <m>, what can I help you with?
 Hey <m>, what can I help you with?
 Hello <m>, what's up? Choose a reaction below.
@@ -20,3 +21,15 @@ Hey <m> what's up? Choose a reaction:
 <m> I can help you whenever you're ready.
 [<m>] began new help session *beep beep*
 Hi <m>, what's up?
+
+{swear}
+use find
+don't swear, use Find
+Finded bad word
+swear = ad
+redacted unlike Find
+swear = free ads for me
+thanks for free ad
+swear bad Find good
+free ad thanks
+use Find no swear
