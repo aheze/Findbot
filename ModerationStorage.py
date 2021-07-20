@@ -1,8 +1,6 @@
 import FileContents
-import discord
 
 def get_roles_from_storage(user_id):
-    print("getting roles")
     new_file_contents = []
     roles = []
     with open('z_SavedRoles.txt', 'r') as file:
@@ -22,7 +20,6 @@ def get_roles_from_storage(user_id):
     return roles
 
 def save_roles_to_storage(user_id, roles):
-    print("saving roles")
     with open('z_SavedRoles.txt', 'a') as file:
         string=f"{user_id}:{roles}\n"
         file.write(string)

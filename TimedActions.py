@@ -56,10 +56,15 @@ async def check_timed_actions(bot):
                     if "unmute." in action_string:
                         server = bot.get_guild(server_id)
                         member = server.get_member(user_id)
-                        muted_role = discord.utils.get(server.roles, id=Moderation.MUTED_ID)
-                        print(f"Unmuting {member}")
-                        print(muted_role)
-                        await member.remove_roles(muted_role)
+                        await Moderation.general_unmute(bot, server, None, bot.user, member, ["Unmuted by Findbot"])
+                        
+                        
+                        #
+                        # muted_role = discord.utils.get(server.roles, id=Moderation.MUTED_ID)
+                        # print(f"Unmuting {member}")
+                        # print(muted_role)
+                        # await member.remove_roles(muted_role)
+                        # await Moderation.unmute()
                 else:
                     new_file_contents.append(line)
         with open('z_TimedActions.txt', 'w') as file:

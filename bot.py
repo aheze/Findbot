@@ -1,7 +1,8 @@
 # bot.py - test
 
-INFO = "Test 3"
+INFO = "Test 4"
 PREFIX = ","
+IGNORED_CHANNEL_ID = 864251261532373012
 
 from logging import error
 import os
@@ -20,6 +21,7 @@ import ReactionActions
 import TimedActions
 import Tutorials
 import Help
+import Censoring
 
 
 load_dotenv()
@@ -46,19 +48,28 @@ FINDBOT_TEST_ID = "860667927345496075"
 async def ping(ctx):
     await Misc.ping(ctx)
 
+@bot.command(name='dance')
+async def dance(ctx):
+    await Misc.dance(ctx)
+
 @bot.command(name='pfp')
 async def get_pfp(ctx, user: discord.User):
     await Misc.get_pfp(ctx, user)
 
 @bot.command(name='help')
 async def help(ctx):
-    print("help...")
     await Help.help(bot, ctx)
 
 @bot.command(name='resethelp')
 async def remove_lingering_helps(ctx):
     await Help.remove_lingering_helps()
 
+@bot.command(name='send')
+async def send(ctx, channel: discord.TextChannel, *args):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    if args:
+        message = " ".join(args)
+        await channel.send(message)
 
 @bot.command(name='color')
 async def get_color(ctx, color: str):
@@ -129,13 +140,13 @@ async def set_modlog(ctx, ping=None):
 
 @bot.event
 async def on_message(message):
-    if message.channel.id == 864251261532373012: return
+    if message.channel.id == IGNORED_CHANNEL_ID: return
     if message.author == bot.user: return
     if Permissions.check_no_admin_permissions(message.author) == False: 
         await bot.process_commands(message) # Needed to allow other commands to work
         return
     else:
-        await Moderation.check_censor(bot, message)
+        await Censoring.check_censor(bot, message)
         await bot.process_commands(message) # Needed to allow other commands to work
 
 @bot.event
