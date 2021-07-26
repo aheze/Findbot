@@ -23,11 +23,29 @@ def parse_tree():
             leading_spaces = len(line) - len(line.lstrip(' '))
             indent = int(leading_spaces / 3) # indent = 3 spaces
 
-            line_string = f"{index}<->{line.strip()}"
+            emoji_split = line.split("::")
+            if len(emoji_split) < 2:
+                children = stack[indent-1].children
+                children_count = len(children) + 1
+                letter = chr(ord('@') + children_count)
+                line_string = f"{index}<->{letter}::{line.strip()}"
+            else:
+                line_string = f"{index}<->{line.strip()}"
 
             # add the node to the stack, set as parent the node that's one level up
-            stack[indent] = Node(line_string, parent=stack[indent-1])
 
+
+            # line = line_string
+
+            
+                # print(f"{children_count} in {stack[indent-1].name}")
+            
+            print(f"{line_string}\n")
+            stack[indent] = Node(line_string, parent=stack[indent-1])
+            
+            
+            # print(f"Stack {stack[indent].name}: {len(stack[indent].siblings)}\n")
+    # print(f"Stack {stack[indent-1].name}: {len(stack[indent-1].siblings)}\n")
         tree = stack[0]
         return tree
 
@@ -35,7 +53,10 @@ parse_tree()
 
 def toggle_emoji(emoji_name, selected_emoji_name):
     opposite = emoji_name
-    if len(emoji_name) < 3:
+
+    if emoji_name == "Currently_Unavailable":
+        opposite = emoji_name 
+    elif len(emoji_name) < 3:
         if selected_emoji_name == emoji_name:
             opposite = emoji_name.removesuffix("_") + "Selected"
     else:
@@ -50,7 +71,6 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
 
     p = re.compile("\<:.+\>")
     result = p.findall(previous_message)
-
 
     for emoji_result in result:
         emoji_split = emoji_result.removeprefix("<:").split(":")
@@ -67,27 +87,35 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
     return "〰〰〰〰〰".join(new_split)
 
 def get_name_for(node, selected: bool = True):
+    print("Get name!")
     name_split = node.name.split("<->")
     id = name_split[0]
     name = name_split[1]
 
-    topic_split = name.split("~~")
-    emoji_name = topic_split[0]
+    full_split = name.split("::", 1)
+    emoji_name = full_split[0]
 
-    if len(emoji_name) < 2:
+    if emoji_name == "Currently_Unavailable":
+        pass
+    elif len(emoji_name) < 2:
         if selected:
             emoji_name += "Selected"
         else:
             emoji_name += "_"
-
     else:
         if not selected:
             emoji_name += "Unselected"
 
-    options_display_name = topic_split[1]
-    title_name = topic_split[2]
 
-    tuple = (emoji_name, options_display_name, title_name, id)
+    print(emoji_name)
+
+    topic_split = full_split[1].split("~~")
+
+    if len(topic_split) < 2:
+        tuple = (emoji_name, topic_split[0], "", id)
+    else:
+        tuple = (emoji_name, topic_split[0], topic_split[1], id)
+        
     return tuple
 
 def get_topics_for(tree, selected_emoji_version):

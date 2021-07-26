@@ -167,7 +167,6 @@ class HelpFactory:
                 file = discord.File("images/member_count.png", filename="member_count.png")
                 embed = discord.Embed()
                 embed.set_image(url=url)
-
                 await channel.send(file=file, embed=embed)
         
 
@@ -214,7 +213,8 @@ class HelpFactory:
         for emoji, action in emoji_to_action:
             if self.current_help == instance_uuid:
                 ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
-                await message.add_reaction(emoji)
+                if emoji.name != "Currently_Unavailable":
+                    await message.add_reaction(emoji)
             else:
                 has_conflict = True
                 break
