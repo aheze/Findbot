@@ -8,6 +8,7 @@ import uuid
 from datetime import datetime, timedelta
 import asyncio
 from anytree import Node, RenderTree, search
+import discord
 
 helps = []
 
@@ -124,12 +125,13 @@ class HelpFactory:
             )
 
     async def start_help(self, bot, ctx):
+        print("start")
         topic_tree = HelpBase.parse_tree()
         name = topic_tree.name
         greeting = Utilities.random_message("greeting", ctx.author.mention)
         name = name.replace("<Hello>", greeting)
 
-        text, emoji_to_action = await self.get_help_content(bot, "", ctx.author.id, topic_tree, name, True)
+        text, emoji_to_action, _ = await self.get_help_content(bot, None, None, "", ctx.author.id, topic_tree, name, True)
         message = await ctx.send(text)
 
         server = ctx.guild
@@ -150,8 +152,24 @@ class HelpFactory:
         node = search.findall(topic_tree, lambda node: f"{topic_id}<->" in node.name)[0]
         node_name = HelpBase.get_name_for(node)[2]
 
-        text, emoji_to_action = await self.get_help_content(bot, existing_message_string, session_user_id, node, node_name, False)
+        text, emoji_to_action, instructions = await self.get_help_content(bot, server, channel, existing_message_string, session_user_id, node, node_name, False)
+
+        if "<member_count>" in text:
+            text = text.replace("<member_count>", f"{server.member_count}")
+        if "<boosters_count>" in text:
+            text = text.replace("<boosters_count>", f"{server.premium_subscription_count}")
+
         await message.edit(content=text)
+        if instructions == "attachment":
+            if server and channel:
+                message_string = HelpActions.determine_action(bot, server, channel, node_name)
+                url = 'attachment://member_count.png'
+                file = discord.File("images/member_count.png", filename="member_count.png")
+                embed = discord.Embed()
+                embed.set_image(url=url)
+
+                await channel.send(file=file, embed=embed)
+        
 
         if self.current_help:
             self.current_help = str(uuid.uuid4())
@@ -163,8 +181,8 @@ class HelpFactory:
             await message.clear_reactions()
             await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
-    async def get_help_content(self, bot, existing_text, user_id, node, node_name, selected_emoji_version):
-
+    async def get_help_content(self, bot, server, channel, existing_text, user_id, node, node_name, selected_emoji_version):
+        additional_instructions = None
         topics = HelpBase.get_topics_for(node, selected_emoji_version)
         emoji_to_action = []
         message_body = ""
@@ -179,10 +197,14 @@ class HelpFactory:
             message_string = f"{node_name}\n{message_body}"
         else:
             message_string = node_name
+            if node_name.startswith("<a>"):
+                message_string = ""
+                additional_instructions = "attachment"
+
             await self.set_timeout(False)
         
         new_message_string = f"{existing_text}{message_string}"
-        return (new_message_string, emoji_to_action)
+        return (new_message_string, emoji_to_action, additional_instructions)
 
     async def add_reactions(self, message, server_id, channel_id, emoji_to_action):
         instance_uuid = str(uuid.uuid4())

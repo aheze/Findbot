@@ -14,7 +14,6 @@ def parse_tree():
             new_line = line
             new_line = new_line.replace("<n>", "\n")
             new_line = new_line.replace("<aheze>", "<@743230678795288637>")
-
             file_contents.append(new_line)
 
         # initialize stack with the root node, also remove first line
@@ -44,10 +43,6 @@ def toggle_emoji(emoji_name, selected_emoji_name):
             opposite = emoji_name + "Unselected"
 
     return opposite
-    
-
-# <:BotCommands:864010866051121152>
-
 
 def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_id):
     existing_split = existing_text.split("〰〰〰〰〰")

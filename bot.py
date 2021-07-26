@@ -1,9 +1,5 @@
 # bot.py - test
 
-INFO = "Test 4"
-PREFIX = ","
-IGNORED_CHANNEL_ID = 864251261532373012
-
 from logging import error
 import os
 import discord
@@ -12,6 +8,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import asyncio
 
+import About
 import Misc
 import Moderation
 import Permissions
@@ -22,7 +19,8 @@ import TimedActions
 import Tutorials
 import Help
 import Censoring
-
+import Stats
+import Utilities
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -30,9 +28,10 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
 intents.reactions = True
 intents.members = True
+intents.messages = True
 
 activity = discord.Game(name="getfind.app")
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(PREFIX), activity=activity, intents=intents, help_command=None)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(About.PREFIX), activity=activity, intents=intents, help_command=None)
 
 # Emoji
 RED = "<:Red:860713765107400714>"
@@ -138,9 +137,13 @@ async def set_modlog(ctx, ping=None):
     if Permissions.check_no_permissions(ctx.author): return
     await ReactionActions.event_leaderboard(bot, ctx, ping)
 
+@bot.command(name='updatestats')
+async def update_stats(ctx):
+    await Stats.update(ctx)
+
 @bot.event
 async def on_message(message):
-    if message.channel.id == IGNORED_CHANNEL_ID: return
+    if message.channel.id == About.IGNORED_CHANNEL_ID: return
     if message.author == bot.user: return
     if Permissions.check_no_admin_permissions(message.author) == False: 
         await bot.process_commands(message) # Needed to allow other commands to work
@@ -148,6 +151,10 @@ async def on_message(message):
     else:
         await Censoring.check_censor(bot, message)
         await bot.process_commands(message) # Needed to allow other commands to work
+
+@bot.event
+async def on_raw_message_edit(payload):
+    await Censoring.check_edit_censor(bot, payload)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -163,11 +170,25 @@ async def on_raw_reaction_remove(payload):
 
 @bot.event
 async def on_member_join(member):
+    Stats.update_server_member_data(member.guild)
     await Moderation.give_member_role(member)
+    log_channel = Utilities.get_modlog_channel(bot)
+    embed_log = discord.Embed(title=f"Member joined", description=f"{member.mention} ({member.id})", color=0x5ea4ff)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    await log_channel.send(embed=embed_log)
+
+@bot.event
+async def on_member_remove(member):
+    Stats.update_server_member_data(member.guild)
+    log_channel = Utilities.get_modlog_channel(bot)
+    embed_log = discord.Embed(title=f"Member left", description=f"{member.mention} ({member.id})", color=0x995eff)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    await log_channel.send(embed=embed_log)
+
 
 @bot.event
 async def on_ready():
-    print(f"Ready - {INFO}!")
+    print(f"Ready - {About.INFO}!")
     asyncio.create_task(TimedActions.check_timed_actions(bot))
     asyncio.create_task(Help.clean_up_helps())
 

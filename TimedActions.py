@@ -2,7 +2,6 @@
 import FileContents
 import Moderation
 
-import discord
 import asyncio
 from datetime import datetime, timedelta
 
@@ -10,7 +9,6 @@ TIME_FORMATTING = "%m.%d.%Y.%H.%M.%S"
 
 # remove
 def remove_timed_actions(keywords):
-    print("removing action")
     new_file_contents = []
     with open('z_TimedActions.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)

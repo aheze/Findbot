@@ -229,7 +229,6 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
             else:
                 await member.add_roles(role)
     elif "claim." in action_string:
-        print("claim!")
         action_split = action_string.split(".")
         claim_role_id = int(action_split[1].strip())
         claim_user_id = int(action_split[2])

@@ -1,14 +1,12 @@
+import Stats
 
-async def determine_action(bot, server, channel, message, session_user_id, existing_message_string, node_name):
+def determine_action(bot, server, channel, node_name):
     action = node_name.removeprefix("<a>")
-    print(f".{action}.")
 
-    if action == "color":
-        color_message = "Press color!"
-        message_string = full_message(existing_message_string, color_message)
-        await message.edit(content=message_string)
+    if action == "members":
+        member_count = server.member_count
+        boosters_count = server.premium_subscription_count
+        Stats.render_image()
+        return ""
 
-
-def full_message(existing_message_string, new_message_string):
-    new_message_string = f"{existing_message_string}{new_message_string}\n*Thank you!*"
-    return new_message_string
+    return "Weird, please ping <@743230678795288637>"

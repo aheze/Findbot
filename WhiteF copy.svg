@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="600px" height="600px" viewBox="0 0 600 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>FindMark</title>
-    <g id="FindMark" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <path d="M51,0 L549,0 C577.166522,-5.1741062e-15 600,22.8334778 600,51 L600,125 C600,153.166522 577.166522,176 549,176 L0,176 L0,176 L0,51 C3.65602323e-15,22.8334778 22.8334778,5.1741062e-15 51,0 Z" id="Rectangle-Copy" fill="#faeded"></path>
-        <path d="M0,212 L349,212 C377.166522,212 400,234.833478 400,263 L400,337 C400,365.166522 377.166522,388 349,388 L0,388 L0,388 L0,212 Z" id="Rectangle-Copy-2" fill="#faeded"></path>
-        <path d="M0,424 L149,424 C177.166522,424 200,446.833478 200,475 L200,549 C200,577.166522 177.166522,600 149,600 L51,600 C22.8334778,600 3.44940413e-15,577.166522 0,549 L0,424 L0,424 Z" id="Rectangle-Copy-3" fill="#faeded"></path>
-    </g>
-</svg>
