@@ -18,10 +18,8 @@ async def help(bot, ctx, args):
     helps.append(help)
 
     combined = "".join(args).strip()
-    print(f"Combo: {combined}")
 
     if combined:
-        print("JUmP!")
         await help.jump(bot, ctx, combined)
     else:
         await help.start_help(bot, ctx)
@@ -141,60 +139,53 @@ class HelpFactory:
         server = ctx.guild
         channel = ctx.channel
 
-        print("path:")
-        print(node.path)
-
-
-        print("ext")
-        # string = node.name.replace("<Hello>", greeting)
         string = ""
-        previous_emoji_name = None
         for index, child in enumerate(node.path):
-            print(f"looping {index}..... {child}")
-            
             if index == 0:
-                print("Ind 0")
                 greeting = Utilities.random_message("greeting", ctx.author.mention)
                 greeting_name = greeting.replace("<Hello>", greeting)
-                text, _, _, _ = self.get_help_content(bot, "", ctx.author.id, child, greeting_name, True)
-                print("done")
-
-
-                node_info = HelpBase.get_node_info(child, emoji_selected=True)
-                previous_emoji_name = node_info.emoji_name
-                print(previous_emoji_name)
+                text, emoji_to_action, _, _ = self.get_help_content(bot, "", ctx.author.id, child, greeting_name, True)
                 string += text
             else:
-                print("Ind 1")
                 node_info = HelpBase.get_node_info(child, emoji_selected=False)
+                emoji = Utilities.get_emoji(bot, node_info.emoji_name)
+                replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, string, emoji.id)
+                existing_message_string = replaced_existing + "〰〰〰〰〰\n"
+                text, emoji_to_action, done, instructions = self.get_help_content(bot, "", ctx.author.id, child, node_info.selected_header_name, False)
+                text = HelpBase.sub_server_stats(text, server)
+                string = existing_message_string + text
 
-
-                text, _, _, _ = self.get_help_content(bot, "", ctx.author.id, child, node_info.selected_header_name, False)
-                print("text")
-                # print(emoji_to_action)
-                # emoji_to_action[0]
-                previous_emoji = Utilities.get_emoji(bot, previous_emoji_name)
-                replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, string, previous_emoji.id)
-                existing_message_string = replaced_existing + "\n〰〰〰〰〰\n"
-
-                
-                string += existing_message_string
-
-
+            # is last node in the tree, so add reactions and handle actions
             if index == len(node.path) - 1:
-                print("lsastt!")
+                if done:
+                    await self.set_timeout(False)
 
-        print(f"String is {string}")
-    
+                message = await ctx.send(string)
+
+                if instructions == "attachment":
+                    if server and channel:
+                        url = HelpActions.determine_action(node_info.selected_header_name)
+                        file = discord.File(url, filename="image.png")
+                        embed = discord.Embed()
+                        embed_url = 'attachment://image.png'
+                        embed.set_image(url=embed_url)
+                        await channel.send(file=file, embed=embed)
+
+                server = ctx.guild
+                channel = message.channel
+
+                now = datetime.now()
+                self.session_start_date_string = TimedActions.convert_date_to_string(now)
+                self.session_message = message
+                self.save_help(self.session_start_date_string, self.session_message.id)
+                await self.add_reactions(message, server.id, channel.id, emoji_to_action)
 
     async def start_help(self, bot, ctx):
-        print("start")
         topic_tree = HelpBase.parse_tree()
         name = topic_tree.name
         greeting = Utilities.random_message("greeting", ctx.author.mention)
         name = name.replace("<Hello>", greeting)
 
-        print("repaced")
         text, emoji_to_action, _, _ = self.get_help_content(bot, "", ctx.author.id, topic_tree, name, True)
         message = await ctx.send(text)
 
@@ -222,23 +213,23 @@ class HelpFactory:
         if done:
             await self.set_timeout(False)
 
-        if "<member_count>" in text:
-            text = text.replace("<member_count>", f"{server.member_count}")
-        if "<boosters_count>" in text:
-            text = text.replace("<boosters_count>", f"{server.premium_subscription_count}")
+        text = HelpBase.sub_server_stats(text, server)
 
-        note_embed = discord.Embed()
-        note_embed.set_footer(text=f"Get here again by typing .help {letter_id}")
+        member = server.get_member(session_user_id)
+        member_roles = [role for role in member.roles if role.name == "Android" or role.name == "Finder"]
+        if len(member_roles) > 0:
+            note_embed = discord.Embed(description=f"Get here again by typing `.help {letter_id}`", color=0x34ebeb)
+            await message.edit(embed=note_embed, content=text)
+        else:
+            await message.edit(content=text)
 
-        await message.edit(embed=note_embed, content=text)
         if instructions == "attachment":
-            if server and channel:
-                HelpActions.determine_action(bot, server, channel, node_info.selected_header_name)
-                url = 'attachment://member_count.png'
-                file = discord.File("images/member_count.png", filename="member_count.png")
-                embed = discord.Embed()
-                embed.set_image(url=url)
-                await channel.send(file=file, embed=embed)
+            url = HelpActions.determine_action(node_info.selected_header_name)
+            file = discord.File(url, filename="image.png")
+            embed = discord.Embed()
+            embed_url = 'attachment://image.png'
+            embed.set_image(url=embed_url)
+            await channel.send(file=file, embed=embed)
 
         if self.current_help:
             self.current_help = str(uuid.uuid4())
@@ -255,19 +246,18 @@ class HelpFactory:
         additional_instructions = None
 
         child_node_infos = HelpBase.get_child_node_infos(node, selected_emoji_version)
-        print("topics got")
         emoji_to_action = []
         message_body = ""
         
         if len(child_node_infos) > 0:
             for node_info in child_node_infos:
-                print(node_info)
                 emoji = Utilities.get_emoji(bot, node_info.emoji_name)
                 
                 message_body += f"{emoji} {node_info.options_name}\n"
                 
                 emoji_action = f"help.{node_info.digit_id}.{user_id}"
                 emoji_to_action.append((emoji, emoji_action))
+
             message_string = f"{node_name}\n{message_body}"
         else:
             done = True

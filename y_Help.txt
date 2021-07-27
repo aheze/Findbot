@@ -16,7 +16,7 @@
       What are the rules?~~The main rule is to be kind and use common sense. You can find the rest of the rules in <#858029448586723379>.<n>*Haha __find__ get it?*
    StatsChart)S::Server/App Stats~~**Server Stats:** <n>
       <member_count> members~~<a>members
-      Currently_Unavailable::<boosters_count> server boosters
+      <boosters_count> server boosters~~<a>boosters
       Currently_Unavailable::*App Stats are coming soon*
    RoleInformation)R::Role Information~~Check out the roles in <#858029544875622410>!
    CustomQuestion)A::Ask a custom question~~Please DM <aheze> or ping him in <#858029742560772126>.

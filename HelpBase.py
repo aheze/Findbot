@@ -38,6 +38,16 @@ def parse_tree():
         tree = stack[0]
         return tree
 
+def sub_server_stats(string, server):
+    if "<member_count>" in string:
+        string = string.replace("<member_count>", f"{server.member_count}")
+    if "<boosters_count>" in string:
+        string = string.replace("<boosters_count>", f"{server.premium_subscription_count}")
+        if server.premium_subscription_count == 1:
+            string = string.replace("boosters", f"booster")
+
+    return string
+
 def toggle_emoji(emoji_name, selected_emoji_name):
     opposite = emoji_name
 
@@ -47,36 +57,39 @@ def toggle_emoji(emoji_name, selected_emoji_name):
         if selected_emoji_name == emoji_name:
             opposite = emoji_name.removesuffix("_") + "Selected"
     else:
-        if selected_emoji_name not in emoji_name:
+        if "Unselected" in selected_emoji_name:
+            selected_emoji_name = selected_emoji_name.removesuffix("Unselected")
+
+        if emoji_name != selected_emoji_name:
             opposite = emoji_name + "Unselected"
         
-
     return opposite
 
 def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_id):
-    
     existing_split = existing_text.split("〰〰〰〰〰")
     previous_message = existing_split[-1]
 
     p = re.compile("\<:.+\>")
     result = p.findall(previous_message)
 
+    selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
+
     for emoji_result in result:
         emoji_split = emoji_result.removeprefix("<:").split(":")
         emoji_name = emoji_split[0]
-        selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
 
-        if selected_emoji.name == "BotCommands":
+        if "BotCommands" in selected_emoji.name:
             previous_message = previous_message.replace("Bot Commands", "__**B**__ot Commands")
-        if selected_emoji.name == "ServerInformation":
+        if "ServerInformation" in selected_emoji.name:
             previous_message = previous_message.replace("Server Information", "Server __**I**__nformation")
-        if selected_emoji.name == "StatsChart":
+        if "StatsChart" in selected_emoji.name:
             previous_message = previous_message.replace("Server/App Stats", "Server/App __**S**__tats")
-        if selected_emoji.name == "RoleInformation":
+        if "RoleInformation" in selected_emoji.name:
             previous_message = previous_message.replace("Role Information", "__**R**__ole Information")
-        if selected_emoji.name == "CustomQuestion":
+        if "CustomQuestion" in selected_emoji.name:
             previous_message = previous_message.replace("Ask a custom question", "__**A**__sk a custom question")
 
+        
         new_name = toggle_emoji(emoji_name, selected_emoji.name)
         new_emoji = Utilities.get_emoji(bot, new_name)
 
@@ -89,7 +102,6 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
 
 def get_letter_id(node):
     name_split = node.name.split("<->")
-    id = name_split[0]
     name = name_split[1]
     full_split = name.split("::", 1)
 
@@ -107,18 +119,11 @@ def jump_to_node(letter_id):
 
     current_node = topic_tree
     for char in target_id:
-        searching = True
-        current_loop = 0
-        while searching:
-            for node in current_node.children:
-                letter_id = get_letter_id(node)
-                # print(f"ID: {letter_id}")
-                if letter_id == char:
-                    # print("same!")
-                    current_node = node
-            current_loop += 1
-            if current_loop > 20:
-                searching = False
+        for node in current_node.children:
+            letter_id = get_letter_id(node)
+            if letter_id == char:
+                current_node = node
+                break
 
     return current_node
 

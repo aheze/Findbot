@@ -1,18 +1,26 @@
 
 import FileContents
-import discord
 import plotly.express as px
 from plotly.graph_objs import *
 import os
+
 from datetime import datetime
 
 DATE_FORMATTING = "%m.%d.%Y"
 
-def render_image():
-    if not os.path.exists("images"):
-        os.mkdir("images")
+class StatChartConfig:
+    def __init__(self, log_file_name, output_file_name, y_axis_name, color_tuple):
+        self.log_file_name = log_file_name
+        self.output_file_name = output_file_name
+        self.y_axis_name = y_axis_name
+        self.bar_color = f"rgba({color_tuple[0]}, {color_tuple[1]}, {color_tuple[2]}, 0.75)"
+        self.border_color = f"rgb({color_tuple[0]}, {color_tuple[1]}, {color_tuple[2]})" 
 
-    with open('ServerMemberLog.txt', 'r') as file:
+def render_stats_image(chart_config: StatChartConfig):
+    # if not os.path.exists("images"):
+    #     os.mkdir("images")
+
+    with open(f'z_ServerStats/{chart_config.log_file_name}.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         dates = []
@@ -36,12 +44,12 @@ def render_image():
             y='y_vals',
             labels = {
                 "dates": "Date",
-                "y_vals": "Server Members"
+                "y_vals": chart_config.y_axis_name
             }
         )
 
         fig.update_traces(
-            marker_color='rgba(96, 181, 255, 0.75)',
+            marker_color=chart_config.bar_color,
             marker_line_color='rgba(0,0,0,0)',
             marker_line_width=1.5, opacity=0.6
         )
@@ -56,19 +64,18 @@ def render_image():
             margin_b=0,
         )    
 
-        fig.update_xaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', title_font_size=21)
-        fig.update_yaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', title_font_size=21)
+        fig.update_xaxes(showline=True, linewidth=2, linecolor=chart_config.border_color, title_font_size=21)
+        fig.update_yaxes(showline=True, linewidth=2, linecolor=chart_config.border_color, gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', title_font_size=21)
         fig.update_layout(layout)
 
-        print("done!!!")
-        fig.write_image("images/member_count.png")
-
-
+        output_url = f"z_ServerStats/{chart_config.output_file_name}.png"
+        fig.write_image(output_url)
+        return output_url
 
 
 def update_or_append_file(keyword, string):
     line_overridden = False
-    with open('ServerMemberLog.txt', 'r') as file:
+    with open('z_ServerStats/ServerMembersLog.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
                 
         for index, line in enumerate(file_contents):
@@ -80,7 +87,7 @@ def update_or_append_file(keyword, string):
     if line_overridden == False:
         file_contents.append(string)
 
-    with open('ServerMemberLog.txt', 'w') as file:
+    with open('z_ServerStats/ServerMembersLog.txt', 'w') as file:
         combined = FileContents.combine_file_contents(file_contents)
         file.write(combined)
 
