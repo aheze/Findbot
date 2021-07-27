@@ -24,10 +24,12 @@ async def check_edit_censor(bot, payload):
     server = bot.get_guild(payload.guild_id)
     channel = server.get_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
-    await check_censor(bot, message, False)
+    if message.author == bot.user:
+        return
+    else:
+        await check_censor(bot, message, False)
 
 async def check_censor(bot, message, send_replacement = True):
-
     message_input = message.content
 
     author = message.author

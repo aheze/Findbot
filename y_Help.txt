@@ -1,22 +1,22 @@
 <Hello>
-   BotCommands::Bot Commands~~Press a reaction to get info on a specific command:
+   BotCommands)B::Bot Commands~~Press a reaction to get info on a specific command:
       `.color`~~Show the given color.<n>Example usage:<n>```.color 00aeef```
       `.ping`~~Respond with "pong".<n>Example usage:<n>```.ping```
       `.how`~~Read a tutorial! The current available tutorials are ```<n>rate<n>find<n>demo<n>nino<n>"how to beat touhou"<n>tutorial```<n>Example usage:<n>```.how rate```<n>*Tip:* Type `.how tutorial` to get instructions on how to make your own tutorial!
       `.pfp`~~Get a fellow server member's pfp.<n>Example usage:<n>```.pfp @aheze```
       `.help`~~Show this message.<n>Example usage:<n>```.help```
-   ServerInformation::Server Information~~Welcome to **aheze/Find**!<n>This is a server where you can hang out, ask questions, and talk about Find. Everyone is welcome, but stay PG and don't swear. Choose a reaction to get more details!
+   ServerInformation)I::Server Information~~Welcome to **aheze/Find**!<n>This is a server where you can hang out, ask questions, and talk about Find. Everyone is welcome, but stay PG and don't swear. Choose a reaction to get more details!
       What is this server about?~~1/3 general talk<n>1/3 art, coding, design<n>1/3 Find
-      What is Find?~~Find is an iOS app made by <aheze>. It's like `Ctrl` + `F` but for your phone's camera, so it lets you find text in real life (books, textbooks, worksheets, etc). The app is free, has no in-app purchases, subscriptions, or ads (**it's completely free**). It also runs 100% offline, so it don't collect any analytics or data.
+      What is Find?~~Find is an iOS app made by <aheze>. It's like `Ctrl` + `F` but for your phone's camera, so it lets you find text in real life (books, textbooks, worksheets, etc).
          How do I download Find?~~Find is available on the App Store over at https://getfind.app
          How do you make money?~~I don't.
          Can I leave a review?~~Thanks, just type `.how rate` anywhere and you'll get a link!
          I don't have an iPhone, can I download Find?~~Not yet, unfortunately. It's currently for iOS 13 and above only, so iPhones and iPads. Sorry Android people... want to grab the role in <#858029544875622410>?
       What can I do in this server?~~**A lot.**<n>>>> • Talk to people - everyone here is pretty friendly<n>• Get some roles - head over to <#858029544875622410><n>• Learn coding - we can help with Swift, Python, and basic web dev<n>• Play with bots - <@784531493204262942> is the server's custom bot. I can add pretty much any command you want! Drop your ideas in <#862832890374651965>.<n>• Give app feedback - found a bug or something? Just ping <aheze><n>• Make your own tutorial - try typing `.how tutorial`
       What are the rules?~~The main rule is to be kind and use common sense. You can find the rest of the rules in <#858029448586723379>.<n>*Haha __find__ get it?*
-   StatsChart::Server/App Stats~~**Server Stats:** <n>
+   StatsChart)S::Server/App Stats~~**Server Stats:** <n>
       <member_count> members~~<a>members
       Currently_Unavailable::<boosters_count> server boosters
       Currently_Unavailable::*App Stats are coming soon*
-   RoleInformation::Role Information~~Check out the roles in <#858029544875622410>!
-   CustomQuestion::Ask a custom question~~Please DM <aheze> or ping him in <#858029742560772126>.
+   RoleInformation)R::Role Information~~Check out the roles in <#858029544875622410>!
+   CustomQuestion)A::Ask a custom question~~Please DM <aheze> or ping him in <#858029742560772126>.

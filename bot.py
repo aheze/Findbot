@@ -56,8 +56,8 @@ async def get_pfp(ctx, user: discord.User):
     await Misc.get_pfp(ctx, user)
 
 @bot.command(name='help')
-async def help(ctx):
-    await Help.help(bot, ctx)
+async def help(ctx, *args):
+    await Help.help(bot, ctx, args)
 
 @bot.command(name='resethelp')
 async def remove_lingering_helps(ctx):

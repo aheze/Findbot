@@ -1,7 +1,7 @@
 
 import FileContents
 import Utilities
-from anytree import Node, RenderTree
+from anytree import Node, search
 import re
 
 # from https://stackoverflow.com/a/68331641/14351818
@@ -33,23 +33,10 @@ def parse_tree():
                 line_string = f"{index}<->{line.strip()}"
 
             # add the node to the stack, set as parent the node that's one level up
-
-
-            # line = line_string
-
-            
-                # print(f"{children_count} in {stack[indent-1].name}")
-            
-            print(f"{line_string}\n")
             stack[indent] = Node(line_string, parent=stack[indent-1])
             
-            
-            # print(f"Stack {stack[indent].name}: {len(stack[indent].siblings)}\n")
-    # print(f"Stack {stack[indent-1].name}: {len(stack[indent-1].siblings)}\n")
         tree = stack[0]
         return tree
-
-parse_tree()
 
 def toggle_emoji(emoji_name, selected_emoji_name):
     opposite = emoji_name
@@ -62,10 +49,12 @@ def toggle_emoji(emoji_name, selected_emoji_name):
     else:
         if selected_emoji_name not in emoji_name:
             opposite = emoji_name + "Unselected"
+        
 
     return opposite
 
 def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_id):
+    
     existing_split = existing_text.split("〰〰〰〰〰")
     previous_message = existing_split[-1]
 
@@ -76,6 +65,18 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
         emoji_split = emoji_result.removeprefix("<:").split(":")
         emoji_name = emoji_split[0]
         selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
+
+        if selected_emoji.name == "BotCommands":
+            previous_message = previous_message.replace("Bot Commands", "__**B**__ot Commands")
+        if selected_emoji.name == "ServerInformation":
+            previous_message = previous_message.replace("Server Information", "Server __**I**__nformation")
+        if selected_emoji.name == "StatsChart":
+            previous_message = previous_message.replace("Server/App Stats", "Server/App __**S**__tats")
+        if selected_emoji.name == "RoleInformation":
+            previous_message = previous_message.replace("Role Information", "__**R**__ole Information")
+        if selected_emoji.name == "CustomQuestion":
+            previous_message = previous_message.replace("Ask a custom question", "__**A**__sk a custom question")
+
         new_name = toggle_emoji(emoji_name, selected_emoji.name)
         new_emoji = Utilities.get_emoji(bot, new_name)
 
@@ -86,45 +87,109 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
 
     return "〰〰〰〰〰".join(new_split)
 
-def get_name_for(node, selected: bool = True):
-    print("Get name!")
+def get_letter_id(node):
+    name_split = node.name.split("<->")
+    id = name_split[0]
+    name = name_split[1]
+    full_split = name.split("::", 1)
+
+    letter_id = ""
+    emoji_section = full_split[0].split(")")
+    if len(emoji_section) > 1:
+        letter_id = emoji_section[1]
+    else:
+        letter_id = emoji_section[0]
+    return letter_id
+
+def jump_to_node(letter_id):
+    topic_tree = parse_tree()
+    target_id = letter_id.upper()
+
+    current_node = topic_tree
+    for char in target_id:
+        searching = True
+        current_loop = 0
+        while searching:
+            for node in current_node.children:
+                letter_id = get_letter_id(node)
+                # print(f"ID: {letter_id}")
+                if letter_id == char:
+                    # print("same!")
+                    current_node = node
+            current_loop += 1
+            if current_loop > 20:
+                searching = False
+
+    return current_node
+
+def generate_identifier_for_node(node: Node):
+
+    ancestors = list(node.ancestors)
+    ancestors.pop(0)
+    ancestors.append(node)
+
+    path = ""
+
+    for ancestor in ancestors:
+        letter_id = get_letter_id(ancestor)
+        path += letter_id
+
+    return path
+
+class NodeInformation:
+    def __init__(self, emoji_name, options_name, selected_header_name, digit_id):
+        self.emoji_name = emoji_name
+        self.options_name = options_name
+        self.selected_header_name = selected_header_name 
+        self.digit_id = digit_id 
+
+def get_node_info(node, emoji_selected: bool = True):
+
     name_split = node.name.split("<->")
     id = name_split[0]
     name = name_split[1]
 
     full_split = name.split("::", 1)
-    emoji_name = full_split[0]
+    emoji_section = full_split[0].split(")")
+    emoji_name = emoji_section[0]
 
     if emoji_name == "Currently_Unavailable":
         pass
     elif len(emoji_name) < 2:
-        if selected:
+        if emoji_selected:
             emoji_name += "Selected"
         else:
             emoji_name += "_"
     else:
-        if not selected:
+        if not emoji_selected:
             emoji_name += "Unselected"
-
-
-    print(emoji_name)
 
     topic_split = full_split[1].split("~~")
 
     if len(topic_split) < 2:
-        tuple = (emoji_name, topic_split[0], "", id)
+        # tuple = (emoji_name, topic_split[0], "", id)
+        return NodeInformation(
+            emoji_name=emoji_name,
+            options_name=topic_split[0],
+            selected_header_name="",
+            digit_id=id
+        )
     else:
-        tuple = (emoji_name, topic_split[0], topic_split[1], id)
-        
-    return tuple
+        # tuple = (emoji_name, topic_split[0], topic_split[1], id)
+        return NodeInformation(
+            emoji_name=emoji_name,
+            options_name=topic_split[0],
+            selected_header_name=topic_split[1],
+            digit_id=id
+        )
 
-def get_topics_for(tree, selected_emoji_version):
-    tuples = []
+def get_child_node_infos(tree, selected_emoji_version):
+    node_infos = []
     for topic in tree.children:
-        tuple = get_name_for(topic, selected_emoji_version)
-        tuples.append(tuple)
+        node_info = get_node_info(topic, selected_emoji_version)
+        node_infos.append(node_info)
 
-    return tuples
+    return node_infos
 
 
 
