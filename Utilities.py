@@ -28,7 +28,7 @@ def get_emoji_from_id(bot, id):
     return emoji
 
 def get_modlog_channel(bot):
-    with open('z_ServerConfig.txt', 'r') as file:
+    with open('Output/ServerConfig.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         for line in file_contents:
@@ -43,7 +43,7 @@ def get_modlog_channel(bot):
 
 def random_message(type, user_mention = None):
     categories = []
-    with open('y_RandomMessage.txt', 'r') as file:
+    with open('Config/RandomMessage.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
 

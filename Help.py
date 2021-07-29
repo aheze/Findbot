@@ -37,7 +37,7 @@ async def remove_lingering_helps():
 
     helps.clear()
 
-    with open('z_HelpLog.txt', 'w') as file:
+    with open('Config/HelpLog.txt', 'w') as file:
         file.write("")
 
 async def clean_up_helps():
@@ -45,7 +45,7 @@ async def clean_up_helps():
 
     while True:
         new_file_contents = []
-        with open('z_HelpLog.txt', 'r') as file:
+        with open('Output/HelpLog.txt', 'r') as file:
             file_contents = FileContents.get_file_contents(file)
             
             for line in file_contents:
@@ -66,7 +66,7 @@ async def clean_up_helps():
                         new_file_contents.append(line)
                 else:
                     new_file_contents.append(line)
-        with open('z_HelpLog.txt', 'w') as file:
+        with open('Output/HelpLog.txt', 'w') as file:
             combined = FileContents.combine_file_contents(new_file_contents)
             file.write(combined)
 
@@ -87,7 +87,7 @@ class HelpFactory:
     timed_out = False
 
     def save_help(self, start_date_string, message_id):
-        with open('z_HelpLog.txt', 'a') as file:
+        with open('Output/HelpLog.txt', 'a') as file:
             string = f"{start_date_string}:{message_id}\n"
             file.write(string)
 

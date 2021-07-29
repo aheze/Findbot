@@ -8,7 +8,7 @@ COLOR_YELLOW = 0xffee00
 COLOR_RED = 0xff0000
 
 word_map = {}
-with open('y_BadWords.txt', 'r') as f:
+with open('Config/BadWords.txt', 'r') as f:
     badwords = f.read().splitlines()
     for word in badwords:
         word_split = word.split("/")
@@ -16,7 +16,7 @@ with open('y_BadWords.txt', 'r') as f:
         alternatives = (word_split[1], word_split[2])
         word_map[checking_bad_word] = alternatives
 
-with open('y_RegexBadWords.txt', 'r') as f:
+with open('Config/RegexBadWords.txt', 'r') as f:
     global regexbadwords  # You want to be able to access this throughout the code
     regexbadwords = f.read()
 
@@ -59,7 +59,7 @@ async def check_censor(bot, message, send_replacement = True):
             else:
                 warning_message = await channel.send(embed=embed)
 
-        with open('z_ServerConfig.txt', 'r') as file:
+        with open('Config/ServerConfig.txt', 'r') as file:
             file_contents = FileContents.get_file_contents(file)
 
             for line in file_contents:

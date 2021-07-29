@@ -36,7 +36,7 @@ class ReactionAction:
         self.emoji_id = emoji_id 
         self.action = action
 
-def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = "z_ReactionActions.txt"):
+def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = "Output/ReactionActions.txt"):
 
     message_address = f"{server_id}/{channel_id}/{message_id}"
     with open(filename, 'r+') as file:
@@ -52,7 +52,7 @@ def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, fi
     if duplicate_lines:
         print("Reaction action has errors in these lines:")
         print(duplicate_lines)
-        with open('z_Errors.log', 'a') as file:
+        with open('Output/Logs/Errors.log', 'a') as file:
             file.write(f'Reaction action has errors in these lines: {duplicate_lines}\n')
 
         return True # has error
@@ -68,7 +68,7 @@ def index_containing_substring(the_list, substring):
     return -1
 
 async def event_leaderboard(bot, ctx, ping = None):
-    with open("z_Events.txt", 'r') as file:
+    with open("Output/Events.txt", 'r') as file:
 
         leaderboard = []
         file_contents = FileContents.get_file_contents(file)
@@ -136,7 +136,7 @@ async def determine_reaction_action(bot, payload, add_instructions):
 
             if add_instructions == "add":
                 new_file_contents = []
-                with open("z_Events.txt", 'r') as file:
+                with open("Output/Events.txt", 'r') as file:
                     file_contents = FileContents.get_file_contents(file)
                     new_file_contents = file_contents
 
@@ -154,16 +154,16 @@ async def determine_reaction_action(bot, payload, add_instructions):
                         combined = f"{message_user_id}:{number}"
                         new_file_contents[matching_user_index] = combined
 
-                with open("z_Events.txt", 'w') as file:
+                with open("Output/Events.txt", 'w') as file:
                     combined = FileContents.combine_file_contents(new_file_contents)
                     file.write(combined)
 
-                with open('z_Output.txt', 'a') as file:
+                with open('Output/Output.txt', 'a') as file:
                     string = f"{message.jump_url}\n"
                     file.write(string)
             else:
                 new_file_contents = []
-                with open("z_Events.txt", 'r') as file:
+                with open("Output/Events.txt", 'r') as file:
                     file_contents = FileContents.get_file_contents(file)
                     new_file_contents = file_contents
 
@@ -179,7 +179,7 @@ async def determine_reaction_action(bot, payload, add_instructions):
                         combined = f"{message_user_id}:{number}"
                         new_file_contents[matching_user_index] = combined
 
-                with open("z_Events.txt", 'w') as file:
+                with open("Output/Events.txt", 'w') as file:
                     combined = FileContents.combine_file_contents(new_file_contents)
                     file.write(combined)
 
@@ -195,10 +195,10 @@ async def determine_reaction_action(bot, payload, add_instructions):
                 if str(reacted_emoji.id) == action.emoji_id:
                     await perform_reaction_action(bot, user_id, action.server_id, action.channel_id, action.message_id, action.emoji_id, action.action, add_instructions)
 
-    with open("z_PermanentReactionActions.txt", 'r') as file:
+    with open("Output/PermanentReactionActions.txt", 'r') as file:
         await read_file(file)
 
-    with open("z_ReactionActions.txt", 'r') as file:
+    with open("Output/ReactionActions.txt", 'r') as file:
         await read_file(file)
 
 
@@ -283,14 +283,14 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
 def cleanup_message_reactions(server_id, channel_id, message_id):
     message_address = f"{server_id}/{channel_id}/{message_id}"
     new_file_contents = []
-    with open('z_ReactionActions.txt', 'r') as file:
+    with open('Output/ReactionActions.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
         
         for line in file_contents:
             if message_address not in line:
                 new_file_contents.append(line)
 
-    with open('z_ReactionActions.txt', 'w') as file:
+    with open('Output/ReactionActions.txt', 'w') as file:
         combined = FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 
@@ -298,13 +298,13 @@ def cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_
     message_address = f"{server_id}/{channel_id}/{message_id}"
     string = f"{message_address}:{emoji_id}:{action_string}"
 
-    with open('z_ReactionActions.txt', 'r') as file:
+    with open('Output/ReactionActions.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         for line in file_contents:
             if string in line:
                 file_contents.remove(line)
     
-    with open('z_ReactionActions.txt', 'w') as file:
+    with open('Output/ReactionActions.txt', 'w') as file:
         combined = FileContents.combine_file_contents(file_contents)
         file.write(combined)

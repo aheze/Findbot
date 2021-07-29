@@ -42,7 +42,7 @@ async def set_modlog(ctx, channel: discord.TextChannel):
     string = f'modlog:{guild_id}:{channel_id}\n'
 
     line_overridden = False
-    with open('z_ServerConfig.txt', 'r') as file:
+    with open('Output/ServerConfig.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
                 
         for index, line in enumerate(file_contents):
@@ -52,10 +52,10 @@ async def set_modlog(ctx, channel: discord.TextChannel):
                 break
 
     if line_overridden == False:
-        with open('z_ServerConfig.txt', 'a') as file:
+        with open('Output/ServerConfig.txt', 'a') as file:
             file.write(string)
     else:
-        with open('z_ServerConfig.txt', 'w') as file:
+        with open('Output/ServerConfig.txt', 'w') as file:
             combined = FileContents.combine_file_contents(file_contents)
             file.write(combined)
 
@@ -104,39 +104,7 @@ async def unban(bot, ctx, user: discord.User, args):
     await ctx.message.add_reaction(GREEN)
 
 async def unmute(bot, ctx, user: discord.User, args):
-    print("unmute!")
     await general_unmute(bot, ctx.guild, ctx.channel, ctx.author, user, args)
-    
-    # server = ctx.guild
-    # member = server.get_member(user.id)
-    # muted_role = discord.utils.get(server.roles, id=MUTED_ID)
-    # await member.remove_roles(muted_role)
-
-    # if args:
-    #     reason = " ".join(args)
-    #     reason_string = f"Reason: {reason}"
-    # else:
-    #     reason_string = "No reason given"
-
-    # keywords = ["unmute", str(user.id)]
-    # TimedActions.remove_timed_actions(keywords)
-    # embed = discord.Embed(description=f"Unmuted {member.mention}", color=COLOR_GREEN)
-    # embed.set_footer(text=reason_string)
-    # await ctx.send(embed=embed)
-
-    # log_channel = Utilities.get_modlog_channel(bot)
-    # embed_log = discord.Embed(title="Unmuted", color=COLOR_GREEN)
-    # embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
-    # embed_log.add_field(name="Unmuter:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
-    # embed_log.add_field(name="Unmuted:", value=f"{member.mention} ({member.id})", inline=True)
-    # embed_log.set_footer(text=reason_string)
-
-    # await log_channel.send(embed=embed_log)
-
-    # role_ids = ModerationStorage.get_roles_from_storage(user.id)
-    # for role_id in role_ids:
-    #     role = discord.utils.get(server.roles, id=int(role_id))
-    #     await member.add_roles(role)
 
 async def general_unmute(bot, server, channel, unmuter, muted_user, args):
     member = server.get_member(muted_user.id)

@@ -34,7 +34,7 @@ async def set_reaction_roles(bot, ctx, message_link, reaction_roles):
             role = discord.utils.get(server.roles, name=emoji_to_role[1])
             if role:
                 role_id = role.id
-                has_error = ReactionActions.save_reaction_action(server_id, channel_id, message_id, emoji.id, f"role.{role_id}", "z_PermanentReactionActions.txt")
+                has_error = ReactionActions.save_reaction_action(server_id, channel_id, message_id, emoji.id, f"role.{role_id}", "Output/PermanentReactionActions.txt")
                 if has_error:
                     message = f"`{emoji.name}` emoji is already assigned to `{role.name}` role"
                     duplicate_roles_messages.append(message)

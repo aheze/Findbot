@@ -6,7 +6,7 @@ import re
 
 # from https://stackoverflow.com/a/68331641/14351818
 def parse_tree():
-    with open('y_Help.txt', 'r') as file:
+    with open('Config/Help.txt', 'r') as file:
         raw_contents = FileContents.get_file_contents(file)
         file_contents = []
         
@@ -172,7 +172,6 @@ def get_node_info(node, emoji_selected: bool = True):
     topic_split = full_split[1].split("~~")
 
     if len(topic_split) < 2:
-        # tuple = (emoji_name, topic_split[0], "", id)
         return NodeInformation(
             emoji_name=emoji_name,
             options_name=topic_split[0],
@@ -180,7 +179,6 @@ def get_node_info(node, emoji_selected: bool = True):
             digit_id=id
         )
     else:
-        # tuple = (emoji_name, topic_split[0], topic_split[1], id)
         return NodeInformation(
             emoji_name=emoji_name,
             options_name=topic_split[0],

@@ -21,6 +21,7 @@ import Help
 import Censoring
 import Stats
 import Utilities
+import Polls
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -69,6 +70,14 @@ async def send(ctx, channel: discord.TextChannel, *args):
     if args:
         message = " ".join(args)
         await channel.send(message)
+
+@bot.command(name='setpollcolor')
+async def set_poll_color(ctx, color):
+    await Polls.set_poll_color(ctx, color)
+
+@bot.command(name='poll')
+async def make_poll(ctx, *args):
+    await Polls.make_poll(bot, ctx, args)
 
 @bot.command(name='color')
 async def get_color(ctx, color: str):

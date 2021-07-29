@@ -3,7 +3,7 @@ import FileContents
 def get_roles_from_storage(user_id):
     new_file_contents = []
     roles = []
-    with open('z_SavedRoles.txt', 'r') as file:
+    with open('Output/SavedRoles.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         for line in file_contents:
@@ -13,13 +13,13 @@ def get_roles_from_storage(user_id):
             else:
                 roles = components[1].split(",")
 
-    with open('z_SavedRoles.txt', 'w') as file:
+    with open('Output/SavedRoles.txt', 'w') as file:
         combined=FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 
     return roles
 
 def save_roles_to_storage(user_id, roles):
-    with open('z_SavedRoles.txt', 'a') as file:
+    with open('Output/SavedRoles.txt', 'a') as file:
         string=f"{user_id}:{roles}\n"
         file.write(string)
