@@ -5,7 +5,7 @@ def determine_action(node_name):
 
     if action == "members":
         chart_config = Stats.StatChartConfig(
-            log_file_name="ServerMembersLog",
+            log_file_path="Output/Logs/ServerMembersLog.txt",
             output_file_name="ServerMembers",
             y_axis_name="Server Members",
             color_tuple=(96, 181, 255)
@@ -14,7 +14,7 @@ def determine_action(node_name):
         return url
     elif action == "boosters":
         chart_config = Stats.StatChartConfig(
-            log_file_name="ServerBoostersLog",
+            log_file_path="Output/Logs/ServerBoostersLog.txt",
             output_file_name="ServerBoosters",
             y_axis_name="Server Boosters",
             color_tuple=(244, 127, 255)

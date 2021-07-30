@@ -154,9 +154,9 @@ async def update_stats(ctx):
 async def on_message(message):
     if message.channel.id == About.IGNORED_CHANNEL_ID: return
     if message.author == bot.user: return
+    await Polls.check_reply(bot, message)
     if Permissions.check_no_admin_permissions(message.author) == False: 
         await bot.process_commands(message) # Needed to allow other commands to work
-        return
     else:
         await Censoring.check_censor(bot, message)
         await bot.process_commands(message) # Needed to allow other commands to work

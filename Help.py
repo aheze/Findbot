@@ -165,6 +165,7 @@ class HelpFactory:
                 if instructions == "attachment":
                     if server and channel:
                         url = HelpActions.determine_action(node_info.selected_header_name)
+                        print(f"URL: {url}")
                         file = discord.File(url, filename="image.png")
                         embed = discord.Embed()
                         embed_url = 'attachment://image.png'

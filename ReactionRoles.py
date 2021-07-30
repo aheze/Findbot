@@ -11,17 +11,8 @@ GREEN = "<:Green:860713764742496258>"
 async def set_reaction_roles(bot, ctx, message_link, reaction_roles):
 
     print("set reaction roles!")
-    link = message_link.split('/')
-    server_id = int(link[4])
-    channel_id = int(link[5])
-    message_id = int(link[6])
-    server = bot.get_guild(server_id)
-    channel = server.get_channel(channel_id)
 
-    print("channel:")
-    print(channel)
-    message = await channel.fetch_message(message_id)
-    print("message")
+    message = await Utilities.get_message_from_url(bot, message_link)    
     emoji_not_founds = []
     role_not_founds = []
     duplicate_roles_messages = []

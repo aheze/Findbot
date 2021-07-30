@@ -20,10 +20,8 @@ async def get_pfp(ctx, user: discord.User):
 
 async def get_color(ctx, color: str):
     color_string = color
-    print(color_string)
     if color_string.lower() == 'ffffff':
         color_string = 'FFF'
-    print(color_string)
 
     with codecs.open('Config/FindMark.svg', encoding='utf-8', errors='ignore') as f:
         content = f.read()

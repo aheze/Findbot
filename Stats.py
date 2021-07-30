@@ -8,8 +8,8 @@ from datetime import datetime
 DATE_FORMATTING = "%m.%d.%Y"
 
 class StatChartConfig:
-    def __init__(self, log_file_name, output_file_name, y_axis_name, color_tuple):
-        self.log_file_name = log_file_name
+    def __init__(self, log_file_path, output_file_name, y_axis_name, color_tuple):
+        self.log_file_path = log_file_path
         self.output_file_name = output_file_name
         self.y_axis_name = y_axis_name
         self.bar_color = f"rgba({color_tuple[0]}, {color_tuple[1]}, {color_tuple[2]}, 0.75)"
@@ -40,41 +40,8 @@ class GenericChartConfig:
         
 
 def render_chart(chart_config: GenericChartConfig):
-    # START_COLOR_BLUE = '#00AEEF'
-    # START_COLOR_GREEN = '#42E100'
-    # START_COLOR_PINK = '#FF3CD0'
-    # START_COLOR_PURPLE = '#D900FF'
-    # START_COLOR_YELLOW = '#FFB700'
-
-    # END_COLOR_BLUE = '#00EF90'
-    # END_COLOR_GREEN = '#0082EF'
-    # END_COLOR_PINK = '#FFD163'
-    # END_COLOR_PURPLE = '#00EFEC'
-    # END_COLOR_YELLOW = '#C7FF00'
-
-    print("render")
-
-    # data = {
-    #     1: 10,
-    #     2: 7,
-    #     3: 12,
-    #     4: 1
-    # }
-
-    # x_vals = list(data.keys())
-    # y_vals = list(data.values())
-
-    print("x")
     x_vals = list(range(1, len(chart_config.counts) + 1))
     data = {'choices': x_vals, 'y_vals': chart_config.counts}
-
-    print("X DONE")
-
-    print(x_vals)
-    print(chart_config.counts)
-
-    print(chart_config.start_color)
-    print(chart_config.end_color)
 
     fig = px.bar(
         data,
@@ -88,16 +55,12 @@ def render_chart(chart_config: GenericChartConfig):
         color_continuous_scale=[chart_config.start_color, chart_config.end_color]
     )
 
-    print("BAR DONe")
     fig.update_coloraxes(showscale=False)
     fig.update_traces(
         showlegend=False,
         marker_line_color='rgba(0,0,0,0)',
         marker_line_width=1.5, opacity=0.6
-        
     )
-
-    print("lay")
 
     layout = Layout(
         paper_bgcolor='rgba(0,0,0,0)',
@@ -111,13 +74,16 @@ def render_chart(chart_config: GenericChartConfig):
             tickmode = 'array',
             tickvals = x_vals,
             ticktext = chart_config.x_labels
+        ),
+        yaxis = dict(
+            tickmode = 'linear',
+            tick0 = 1,
+            dtick = 0
         )
     )   
 
-    print("Donelay")
-
-    fig.update_xaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', title_font_size=21)
-    fig.update_yaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', title_font_size=21)
+    fig.update_xaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', tickfont_size=32)
+    fig.update_yaxes(rangemode="tozero", showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', tickfont_size=32)
     fig.update_layout(layout)
 
     output_url = f"Output/Images/{chart_config.output_file_name}.png"
@@ -128,7 +94,7 @@ def render_chart(chart_config: GenericChartConfig):
 
 
 def render_stats_image(chart_config: StatChartConfig):
-    with open(f'Output/Images/{chart_config.log_file_name}.txt', 'r') as file:
+    with open(chart_config.log_file_path, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         dates = []

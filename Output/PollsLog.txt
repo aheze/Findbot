@@ -1,1 +1,3 @@
-870193401574858763:Yes~~No~~No~~No~~No~~No~~No~~No~~No~~No870194149188591617:Yes~~No870194185561600062:Yes~~No870194347960848384:Yes~~No
+870475784391897108<~meta~>Hi<~meta~>Yes<~sep~>Noooo
+870476321438982224<~meta~>What is your favorite color?<~meta~>Blue<~sep~>Red<~sep~>Green
+870479393766666251<~meta~>What is your favorite color?<~meta~>Blue<~sep~>Red<~sep~>Green

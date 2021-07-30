@@ -4,6 +4,18 @@ import discord
 import random
 import asyncio
 
+async def get_message_from_url(bot, url):
+    link = url.split('/')
+
+    server_id = int(link[4])
+    channel_id = int(link[5])
+    message_id = int(link[6])
+
+    server = bot.get_guild(server_id)
+    channel = server.get_channel(channel_id)
+    message = await channel.fetch_message(message_id)
+    return message
+
 # get an emoji by name
 def get_emoji(bot, name):
     emoji = None
@@ -73,3 +85,11 @@ def random_message(type, user_mention = None):
                 message_string = message_string.replace("<m>", user_mention)
 
             return message_string
+
+
+def readable_list(list) -> str:
+    # Ref: https://stackoverflow.com/a/53981846/
+    list = [str(s) for s in list]
+    if len(list) < 3:
+        return ' and '.join(list)
+    return ', '.join(list[:-1]) + ', and ' + list[-1]
