@@ -4,6 +4,34 @@ import discord
 import random
 import asyncio
 
+def save_key_value_to_file(file, key, value):
+    line_overridden = False
+    with open(file, 'r') as f:
+        file_contents = FileContents.get_file_contents(f)
+                
+        for index, line in enumerate(file_contents):
+            if key in line:
+                file_contents[index] = f"{key}:{value}"
+                line_overridden = True
+                break
+
+    if not line_overridden:
+        file_contents.append(f"{key}:{value}")
+
+    with open(file, 'w') as f:
+        combined = FileContents.combine_file_contents(file_contents)
+        f.write(combined)
+
+def read_value_from_file(file, keyword):
+    with open(file, 'r') as f:
+        file_contents = FileContents.get_file_contents(f)
+        for line in file_contents:
+            if keyword in line:
+                line_split = line.split(":", 1)
+                return line_split[1]
+
+
+
 async def get_message_from_url(bot, url):
     link = url.split('/')
 
@@ -38,20 +66,6 @@ def get_emoji_from_id(bot, id):
             break
 
     return emoji
-
-def get_modlog_channel(bot):
-    with open('Output/ServerConfig.txt', 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-
-        for line in file_contents:
-            if "modlog:" in line:
-                line_split = line.split(":")
-                server_id = int(line_split[1])
-                channel_id = int(line_split[2])
-
-                log_server = bot.get_guild(server_id)
-                log_channel = log_server.get_channel(channel_id)
-                return log_channel
 
 def random_message(type, user_mention = None):
     categories = []

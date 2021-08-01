@@ -1,6 +1,6 @@
 
 import ModerationStorage
-import FileContents
+import Config
 import TimedActions
 import Utilities
 import discord
@@ -36,31 +36,6 @@ async def give_member_role(member):
     member_role = discord.utils.get(server.roles, id=MEMBER_ROLE_ID)
     await member.add_roles(member_role)
 
-async def set_modlog(ctx, channel: discord.TextChannel):
-    guild_id = str(ctx.guild.id)
-    channel_id = str(channel.id)
-    string = f'modlog:{guild_id}:{channel_id}\n'
-
-    line_overridden = False
-    with open('Output/ServerConfig.txt', 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-                
-        for index, line in enumerate(file_contents):
-            if "modlog:" in line:
-                file_contents[index] = string
-                line_overridden = True
-                break
-
-    if line_overridden == False:
-        with open('Output/ServerConfig.txt', 'a') as file:
-            file.write(string)
-    else:
-        with open('Output/ServerConfig.txt', 'w') as file:
-            combined = FileContents.combine_file_contents(file_contents)
-            file.write(combined)
-
-    await ctx.message.add_reaction(GREEN)
-
 async def ban(bot, ctx, user: discord.User, args):
     print("ban")
     server = ctx.guild
@@ -72,7 +47,7 @@ async def ban(bot, ctx, user: discord.User, args):
         reason_string = "No reason given"
 
     member = server.get_member(user.id)
-    log_channel = Utilities.get_modlog_channel(bot)
+    log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title=f"Banned", color=COLOR_RED)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
     embed_log.add_field(name="Banner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
@@ -92,7 +67,7 @@ async def unban(bot, ctx, user: discord.User, args):
     else:
         reason_string = "No reason given"
 
-    log_channel = Utilities.get_modlog_channel(bot)
+    log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title=f"Unbanned", color=COLOR_GREEN)
     embed_log.set_author(name=user.display_name, url=f"https://discord.com/users/{user.id}", icon_url=user.avatar_url)
     embed_log.add_field(name="Unbanner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
@@ -124,7 +99,7 @@ async def general_unmute(bot, server, channel, unmuter, muted_user, args):
         embed.set_footer(text=reason_string)
         await channel.send(embed=embed)
 
-    log_channel = Utilities.get_modlog_channel(bot)
+    log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title="Unmuted", color=COLOR_GREEN)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
     embed_log.add_field(name="Unmuter:", value=f"{unmuter.mention} ({unmuter.id})", inline=True)

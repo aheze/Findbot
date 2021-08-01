@@ -2,13 +2,14 @@
 
 from logging import error
 import os
+from asyncio.base_events import Server
 import discord
 
 from discord.ext import commands
 from dotenv import load_dotenv
 import asyncio
 
-import About
+import z_About
 import Misc
 import Moderation
 import Permissions
@@ -20,8 +21,9 @@ import Tutorials
 import Help
 import Censoring
 import Stats
-import Utilities
+import ServerStatus
 import Polls
+import Config
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -30,9 +32,11 @@ intents = discord.Intents.default()
 intents.reactions = True
 intents.members = True
 intents.messages = True
+intents.voice_states = True
+intents.invites = True
 
 activity = discord.Game(name="getfind.app")
-bot = commands.Bot(command_prefix=commands.when_mentioned_or(About.PREFIX), activity=activity, intents=intents, help_command=None)
+bot = commands.Bot(command_prefix=commands.when_mentioned_or(z_About.PREFIX), activity=activity, intents=intents, help_command=None)
 
 # Emoji
 RED = "<:Red:860713765107400714>"
@@ -67,9 +71,7 @@ async def remove_lingering_helps(ctx):
 @bot.command(name='send')
 async def send(ctx, channel: discord.TextChannel, *args):
     if Permissions.check_no_admin_permissions(ctx.author): return
-    if args:
-        message = " ".join(args)
-        await channel.send(message)
+    await Misc.send(channel, args)
 
 @bot.command(name='setpollcolor')
 async def set_poll_color(ctx, color):
@@ -127,19 +129,24 @@ async def give_all_member(ctx):
     await Moderation.give_all_member(ctx)
 
 @bot.command(name='setclaim')
-async def set_claim_role(ctx, user: discord.User, emoji_name: str, role_name: str, in_channel: discord.TextChannel, *args):
+async def set_claim_role(ctx, user: discord.User, emoji_role_name: str, in_channel: discord.TextChannel, *args):
     if Permissions.check_no_admin_permissions(ctx.author): return
-    await Reactions.set_claim_role(bot, ctx, user, emoji_name, role_name, in_channel, args)
+    await Reactions.set_claim_role(bot, ctx, user, emoji_role_name, in_channel, args)
 
 @bot.command(name='reactroles')
 async def set_reaction_roles(ctx, message_link, *reaction_roles):
     if Permissions.check_no_admin_permissions(ctx.author): return
     await ReactionRoles.set_reaction_roles(bot, ctx, message_link, reaction_roles)
 
-@bot.command(name='setmodlog')
-async def set_modlog(ctx, channel: discord.TextChannel):
+# @bot.command(name='setmodlog')
+# async def set_modlog(ctx, channel: discord.TextChannel):
+#     if Permissions.check_no_admin_permissions(ctx.author): return
+#     await Config.set_modlog(ctx, channel)
+
+@bot.command(name='config')
+async def configurate(ctx, name, channel: discord.TextChannel):
     if Permissions.check_no_admin_permissions(ctx.author): return
-    await Moderation.set_modlog(ctx, channel)
+    await Config.configurate(ctx, name, channel)
 
 @bot.command(name='eventleaderboard')
 async def set_modlog(ctx, ping=None):
@@ -152,7 +159,7 @@ async def update_stats(ctx):
 
 @bot.event
 async def on_message(message):
-    if message.channel.id == About.IGNORED_CHANNEL_ID: return
+    if message.channel.id == z_About.IGNORED_CHANNEL_ID: return
     if message.author == bot.user: return
     await Polls.check_reply(bot, message)
     if Permissions.check_no_admin_permissions(message.author) == False: 
@@ -179,25 +186,23 @@ async def on_raw_reaction_remove(payload):
 
 @bot.event
 async def on_member_join(member):
-    Stats.update_server_member_data(member.guild)
-    await Moderation.give_member_role(member)
-    log_channel = Utilities.get_modlog_channel(bot)
-    embed_log = discord.Embed(title=f"Member joined", description=f"{member.mention} ({member.id})", color=0x5ea4ff)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
-    await log_channel.send(embed=embed_log)
+    await ServerStatus.on_member_join(bot, member)
 
 @bot.event
 async def on_member_remove(member):
-    Stats.update_server_member_data(member.guild)
-    log_channel = Utilities.get_modlog_channel(bot)
-    embed_log = discord.Embed(title=f"Member left", description=f"{member.mention} ({member.id})", color=0x995eff)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
-    await log_channel.send(embed=embed_log)
+    await ServerStatus.on_member_remove(bot, member)
 
+@bot.event
+async def on_voice_state_update(member, before, after):
+    await ServerStatus.on_voice_state_update(bot, member, before, after)
+
+@bot.event
+async def on_invite_create(invite):
+    await ServerStatus.on_invite_create(bot, invite)
 
 @bot.event
 async def on_ready():
-    print(f"Ready - {About.INFO}!")
+    print(f"Ready - {z_About.INFO}!")
     asyncio.create_task(TimedActions.check_timed_actions(bot))
     asyncio.create_task(Help.clean_up_helps())
 

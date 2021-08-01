@@ -1,4 +1,4 @@
-
+import Utilities
 import FileContents
 import plotly.express as px
 from plotly.graph_objs import *
@@ -37,7 +37,6 @@ class GenericChartConfig:
             self.start_color = '#FFB700'
             self.end_color = '#C7FF00'
         
-        
 
 def render_chart(chart_config: GenericChartConfig):
     x_vals = list(range(1, len(chart_config.counts) + 1))
@@ -71,6 +70,7 @@ def render_chart(chart_config: GenericChartConfig):
         margin_t=0,
         margin_b=0,
         xaxis = dict(
+            type='category',
             tickmode = 'array',
             tickvals = x_vals,
             ticktext = chart_config.x_labels
@@ -79,17 +79,17 @@ def render_chart(chart_config: GenericChartConfig):
             tickmode = 'linear',
             tick0 = 1,
             dtick = 0
-        )
+        ),
+        
     )   
 
-    fig.update_xaxes(showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', tickfont_size=32)
-    fig.update_yaxes(rangemode="tozero", showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', tickfont_size=32)
+    fig.update_xaxes(automargin=True, showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', tickfont_size=24)
+    fig.update_yaxes(rangemode="tozero", showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', tickfont_size=24)
     fig.update_layout(layout)
 
     output_url = f"Output/Images/{chart_config.output_file_name}.png"
     fig.write_image(output_url)
 
-    print("Done!")
     return output_url
 
 
@@ -146,32 +146,12 @@ def render_stats_image(chart_config: StatChartConfig):
         fig.write_image(output_url)
         return output_url
 
-
-def update_or_append_file(keyword, string):
-    line_overridden = False
-    with open('Output/Logs/ServerMembersLog.txt', 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-                
-        for index, line in enumerate(file_contents):
-            if keyword in line:
-                file_contents[index] = string
-                line_overridden = True
-                break
-
-    if line_overridden == False:
-        file_contents.append(string)
-
-    with open('Output/Logs/ServerMembersLog.txt', 'w') as file:
-        combined = FileContents.combine_file_contents(file_contents)
-        file.write(combined)
-
 def update_server_member_data(server):
     current_date = datetime.now()
     current_date_string = current_date.strftime(DATE_FORMATTING)
-    current_member_count = server.member_count
-
-    string = f"{current_date_string}:{current_member_count}\n"
-    update_or_append_file(current_date_string, string)
+    current_member_count = str(server.member_count)
+    
+    Utilities.save_key_value_to_file('Output/Logs/ServerMembersLog.txt', current_date_string, current_member_count)
 
 
 GREEN = "<:Green:860713764742496258>"

@@ -7,33 +7,78 @@ EMOJI_SERVER_ID = 869798779145027584
 GREEN = "<:Green:860713764742496258>"
 
 class PollInfo:
-    def __init__(self, jump_url, title, choices, description, counts):
+    def __init__(self, jump_url, title, choices, description, counts, footer):
         self.jump_url = jump_url
         self.title = title
         self.choices = choices # ["Red", "Violet", "Cheese", "Other"]
         self.description = description
         self.counts = counts # [0, 4, 10, 3]
+        self.footer = footer
+
+word_map = {}
+with open('Config/PollEmojis.txt', 'r') as file:
+    file_contents = FileContents.get_file_contents(file)
+    for lines in file_contents:
+        line_split = lines.split("=")
+        word = line_split[0]
+        emoji = line_split[1]
+        word_map[word] = emoji
+
+
+
+def get_choice_emoji_content(bot, choices, color):
+    used_emojis = []
+
+    content = ""
+    emojis = []
+
+    for index, choice in enumerate(choices):
+        mapped_emojis = [value for key, value in word_map.items() if key in choice.lower()]
+
+        if len(mapped_emojis) > 0 and mapped_emojis[0] not in used_emojis:
+            emoji = mapped_emojis[0]
+            content += f"{emoji} {choice}\n"
+            emojis.append(emoji)
+            used_emojis.append(emoji)
+        else:
+            letter = chr(ord('@') + index + 1)
+            emoji_name = f"{letter}_{color}"
+            emoji = Utilities.get_emoji(bot, emoji_name)
+            content += f"{emoji} {choice}\n"
+            emojis.append(emoji)
+
+    return (emojis, content, used_emojis)
+
 
 async def count_reactions(message):
-
-    counts = []
-    has_votes = False
-    for reaction in message.reactions:
-        if reaction.emoji.guild.id == 869798779145027584:
-            count = reaction.count - 1
-            counts.append(count)
-            if not has_votes:
-                has_votes = count > 0
-
+    
     with open('Output/PollsLog.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
         for line in file_contents:
             if str(message.id) in line:
 
-                line_split = line.split("<~meta~>", 2)
+                line_split = line.split("<~meta~>", 3)
                 title = line_split[1]
-                choices_string = line_split[2]
+                used_emojis_string = line_split[2]
+                used_emojis = used_emojis_string.split(",")
+                choices_string = line_split[3]
                 choices = choices_string.split("<~sep~>")
+
+                counts = []
+                has_votes = False
+                for reaction in message.reactions:
+                    if reaction.emoji in used_emojis:
+                        count = reaction.count - 1
+                        counts.append(count)
+                        if not has_votes:
+                            has_votes = count > 0
+                    elif isinstance(reaction.emoji, discord.Emoji):
+                        if reaction.emoji.guild.id == 869798779145027584:
+                            count = reaction.count - 1
+                            counts.append(count)
+                            if not has_votes:
+                                has_votes = count > 0
+                            
 
                 max_count = max(counts)
                 winning_indices = [i for i, j in enumerate(counts) if j == max_count]
@@ -52,13 +97,19 @@ async def count_reactions(message):
                 else:
                     description = f"Poll result: {winning_text} ({votes})"
 
+                total_votes = sum(counts)
+                if total_votes == 1:
+                    footer = "1 total vote"
+                else:
+                    footer = f"{total_votes} total votes"
 
                 poll_info = PollInfo(
                     jump_url=message.jump_url,
                     title=title,
                     choices=choices,
                     description=description,
-                    counts=counts
+                    counts=counts,
+                    footer=footer
                 )
 
                 return poll_info
@@ -79,18 +130,26 @@ async def make_poll(bot, ctx, args):
                 title = message_split[0]
                 choices = [choice.strip() for choice in message_split[1].split(",")]
             
+            choices = list(filter(None, choices))
+
+            poll_is_yes_no = False
+            if len(choices) == 0:
+                poll_is_yes_no = True
+                choices.append("Yes")
+                choices.append("No")
 
             color = read_poll_color(ctx.channel)
             hex_color = poll_color_to_hex(color)
 
             poll_message_title = Utilities.random_message("poll")
 
-            content = ""
-            emojis = []
-            for index, choice in enumerate(choices):
-                emoji = get_choice_emoji(bot, color, index + 1)
-                content += f"{emoji} {choice}\n"
-                emojis.append(emoji)
+            if poll_is_yes_no:
+                emojis = ["👍", "👎"]
+                content = ""
+                used_emojis = ["👍", "👎"]
+            else:
+                                # unicode emoji
+                emojis, content, used_emojis = get_choice_emoji_content(bot, choices, color)
 
             embed = discord.Embed(title=title, description=content, color=hex_color)
             embed.set_author(name=poll_message_title, icon_url="https://raw.githubusercontent.com/aheze/Findbot-Assets/main/Poll.png")
@@ -98,7 +157,8 @@ async def make_poll(bot, ctx, args):
 
             with open('Output/PollsLog.txt', 'a') as file:
                 choices_string = "<~sep~>".join(choices)
-                string = f"{sent_message.id}<~meta~>{title}<~meta~>{choices_string}\n"
+                used_emojis_string = ",".join(used_emojis)
+                string = f"{sent_message.id}<~meta~>{title}<~meta~>{used_emojis_string}<~meta~>{choices_string}\n"
                 file.write(string)
 
             for emoji in emojis:
@@ -138,14 +198,10 @@ async def send_poll_results(channel, message):
     url = 'attachment://image.png'
     file = discord.File(image_url, filename="image.png")
     embed.set_image(url=url)
+    embed.set_footer(text=poll_info.footer)
 
     await channel.send(file=file, embed=embed)
 
-def get_choice_emoji(bot, color, index):
-    letter = chr(ord('@') + index)
-    emoji_name = f"{letter}_{color}"
-    emoji = Utilities.get_emoji(bot, emoji_name)
-    return emoji
 
 
 def read_poll_color(channel):
@@ -158,22 +214,7 @@ def read_poll_color(channel):
 
 async def set_poll_color(ctx, color):
     channel_id = str(ctx.channel.id)
-    string = f'pollcolor-{channel_id}:{color}\n'
-
-    with open("Output/ServerConfig.txt", 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-        new_file_contents = file_contents
-
-        matching_user_index = index_containing_substring(file_contents, f'pollcolor-{channel_id}')
-        if matching_user_index == -1:
-            new_file_contents.append(string)
-        else:
-            new_file_contents[matching_user_index] = string
-
-    with open("Output/ServerConfig.txt", 'w') as file:
-        combined = FileContents.combine_file_contents(new_file_contents)
-        file.write(combined)
-
+    Utilities.save_key_value_to_file("Output/ServerConfig.txt", f'pollcolor-{channel_id}', color)
     await ctx.message.add_reaction(GREEN)
 
 def index_containing_substring(the_list, substring):
@@ -195,3 +236,4 @@ def poll_color_to_hex(color):
         hex_color = 0xFCBB00
 
     return hex_color
+

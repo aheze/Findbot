@@ -3,6 +3,11 @@ import codecs
 from cairosvg import svg2png
 import asyncio
 
+async def send(channel: discord.TextChannel, *args):
+    if args:
+            message = " ".join(args)
+            await channel.send(message)
+
 async def dance(ctx):
     url = "https://raw.githubusercontent.com/aheze/Findbot-Assets/main/UsagiDance.gif"
     embed = discord.Embed(description=f"Here is a dance", color=0xa200ad)

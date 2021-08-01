@@ -1,3 +1,40 @@
 870475784391897108<~meta~>Hi<~meta~>Yes<~sep~>Noooo
 870476321438982224<~meta~>What is your favorite color?<~meta~>Blue<~sep~>Red<~sep~>Green
 870479393766666251<~meta~>What is your favorite color?<~meta~>Blue<~sep~>Red<~sep~>Green
+870481978179354645<~meta~>Hi<~meta~>
+870482157376794644<~meta~>Hi<~meta~>
+870492781741756446<~meta~>Hi<~meta~>Yes<~sep~>No
+870493920121995296<~meta~>Hi<~meta~>Yes<~sep~>No
+870493977781092364<~meta~>Hi<~meta~>Naaa<~sep~>yoo
+870494014149885983<~meta~>Hi<~meta~>Naaa<~sep~>yoo
+870494136594219028<~meta~>Hi<~meta~>Naaa<~sep~>yoo
+870494159277031464<~meta~>Hi<~meta~>dasd
+870494252235370507<~meta~>Yessss<~meta~>Yes<~sep~>no
+870495699874238494<~meta~>asdadsad<~meta~>Yes<~sep~>asd<~sep~>asd<~sep~>asd
+870495730291331082<~meta~>asdadsad<~meta~>Yes<~sep~>asd<~sep~>asd<~sep~>apples<~sep~>gr
+870496308769726524<~meta~>asdadsad<~meta~>Yes<~sep~>yes<~sep~>asd<~sep~>apples<~sep~>gr
+870497925359341578<~meta~>asd<~meta~><~meta~>asd<~sep~>d
+870498356517036062<~meta~>asdadsad<~meta~>👍,🍎<~meta~>Yes<~sep~>yes<~sep~>asd<~sep~>apples<~sep~>gr
+870500364187758632<~meta~>asdasd<~meta~><~meta~>Yes<~sep~>No
+870500740085477478<~meta~>asdasd<~meta~>👍,👎<~meta~>Yes<~sep~>No
+870502891981512754<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503069350240307<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503251638898698<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503378608861275<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503601930403890<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503633937129504<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503724244688906<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣,⚪️<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>White<~sep~>hi<~sep~>sdf
+870503800341946389<~meta~>What is your favorite color<~meta~>🟢,🔵,🟣<~meta~>Green<~sep~>Blue<~sep~>Purple<~sep~>Black<~sep~>hi<~sep~>sdf
+870504664297271348<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple
+870505328112971786<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple<~sep~>some<~sep~>some<~sep~>some
+870507003087302686<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple<~sep~>some<~sep~>some<~sep~>a
+870507108066545674<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple<~sep~>some<~sep~>some<~sep~>abc
+870507301746913331<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple<~sep~>some<~sep~>some<~sep~>abc
+870508405918408765<~meta~>What is your favorite color<~meta~>🔴,🟠,🟡,🟢,🔵,🟣<~meta~>Red<~sep~>Orange<~sep~>Yellow<~sep~>Green<~sep~>Blue<~sep~>Purple<~sep~>some<~sep~>some<~sep~>abcasdasdasda
+871258706757709854<~meta~>hi<~meta~>👍,👎<~meta~>Yes<~sep~>No
+871259465352114228<~meta~>a<~meta~><~meta~>Asd<~sep~>asd
+871259503981641768<~meta~>asd <~meta~><~meta~>asd<~sep~>asd
+871259505185390612<~meta~>asd <~meta~><~meta~>asd<~sep~>asd
+871259507693609020<~meta~>asd ?<~meta~><~meta~>asd<~sep~>asd<~sep~>poll asd ? asd<~sep~>asd<~sep~>poll asd ? asd<~sep~>asd
+871259512550596678<~meta~>asd <~meta~><~meta~>asd<~sep~>asd
+871259528484773970<~meta~>asd <~meta~><~meta~>asd<~sep~>asd

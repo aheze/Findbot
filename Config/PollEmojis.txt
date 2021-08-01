@@ -1,0 +1,13 @@
+yes=👍
+no=👎
+red=🔴
+orange=🟠
+yellow=🟡
+green=🟢
+blue=🔵
+purple=🟣
+apple=🍎
+iphone=📱
+android=📞
+mac=🖥
+pc=💾

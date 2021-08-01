@@ -1,4 +1,4 @@
-import FileContents
+import Config
 import regex as re
 import discord
 import unicodedata
@@ -58,52 +58,39 @@ async def check_censor(bot, message, send_replacement = True):
                 warning_message = await original_message.reply(embed=embed)
             else:
                 warning_message = await channel.send(embed=embed)
+                embed_description = message.content
 
-        with open('Config/ServerConfig.txt', 'r') as file:
-            file_contents = FileContents.get_file_contents(file)
+                generic_bad_words = [x[0] for x in bad_words]
+                original_bad_words = [x[1] for x in bad_words]
+                cleaned_bad_words = list(set(original_bad_words))
 
-            for line in file_contents:
-                if "modlog:" in line:
-                    embed_description = message.content
+                for original in cleaned_bad_words:
+                    embed_description = re.sub(original, f"*__{original}__*", embed_description, flags=re.IGNORECASE)
 
-                    generic_bad_words = [x[0] for x in bad_words]
-                    original_bad_words = [x[1] for x in bad_words]
-                    cleaned_bad_words = list(set(original_bad_words))
+                log_channel = Config.get_configurated_channel(bot, "modlog")
 
-                    for original in cleaned_bad_words:
-                        embed_description = re.sub(original, f"*__{original}__*", embed_description, flags=re.IGNORECASE)
+                if send_replacement:
+                    embed_log = discord.Embed(title="Censored Message", color=0xfcba03)
+                else:
+                    embed_log = discord.Embed(title="Censored Edited Message", color=COLOR_RED)
 
-                    line_split = line.split(":")
-                    server_id = int(line_split[1])
-                    channel_id = int(line_split[2])
+                embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
+            
+                if send_replacement:
+                    embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
+                    embed_log.add_field(name="Original message", value=embed_description, inline=False)
+                    embed_log.add_field(name="Replaced message", value=replacement, inline=False)
+                    embed_log.add_field(name="Original message ID", value=f"{message.id}", inline=True)
+                    embed_log.add_field(name="Replaced message link", value=f"[{warning_message.id}]({warning_message.jump_url})", inline=True)
+                else:
+                    embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
+                    embed_log.add_field(name="Updated message", value=embed_description, inline=False)
+                    embed_log.add_field(name="Created time", value=created_at.strftime("%Y-%m-%d %l:%M:%S %p"), inline=True)
+                    embed_log.add_field(name="Edited time", value=edited_at.strftime("%Y-%m-%d %l:%M:%S %p"), inline=True)
+                    embed_log.add_field(name="Channel", value=channel.mention, inline=True)
 
-                    log_server = bot.get_guild(server_id)
-                    log_channel = log_server.get_channel(channel_id)
-
-                    if send_replacement:
-                        embed_log = discord.Embed(title="Censored Message", color=0xfcba03)
-                    else:
-                        embed_log = discord.Embed(title="Censored Edited Message", color=COLOR_RED)
-
-                    embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
-                    
-
-                    if send_replacement:
-                        embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
-                        embed_log.add_field(name="Original message", value=embed_description, inline=False)
-                        embed_log.add_field(name="Replaced message", value=replacement, inline=False)
-                        embed_log.add_field(name="Original message ID", value=f"{message.id}", inline=True)
-                        embed_log.add_field(name="Replaced message link", value=f"[{warning_message.id}]({warning_message.jump_url})", inline=True)
-                    else:
-                        embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)
-                        embed_log.add_field(name="Updated message", value=embed_description, inline=False)
-                        embed_log.add_field(name="Created time", value=created_at.strftime("%Y-%m-%d %l:%M:%S %p"), inline=True)
-                        embed_log.add_field(name="Edited time", value=edited_at.strftime("%Y-%m-%d %l:%M:%S %p"), inline=True)
-                        embed_log.add_field(name="Channel", value=channel.mention, inline=True)
-
-                    embed_log.set_footer(text=f"Censored words: {generic_bad_words}")
-                    await log_channel.send(embed=embed_log)
-                    break
+                embed_log.set_footer(text=f"Censored words: {generic_bad_words}")
+                await log_channel.send(embed=embed_log)
 
 def check_bad_words(input_str, is_dev):
     new_string = input_str
