@@ -123,6 +123,16 @@ async def unban(ctx, user: discord.User, *args):
     if Permissions.check_no_permissions(ctx.author): return
     await Moderation.unban(bot, ctx, user, args)
 
+@bot.command(name='lock')
+async def mute(ctx, channel: discord.TextChannel = None):
+    if Permissions.check_no_permissions(ctx.author): return
+    await Moderation.lock(ctx, channel)
+
+@bot.command(name='unlock')
+async def mute(ctx, channel: discord.TextChannel = None):
+    if Permissions.check_no_permissions(ctx.author): return
+    await Moderation.unlock(ctx, channel)
+
 @bot.command(name='givemember')
 async def give_all_member(ctx):
     if Permissions.check_no_admin_permissions(ctx.author): return

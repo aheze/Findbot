@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 COLOR_GREEN = 0x08e800
 COLOR_YELLOW = 0xffee00
 COLOR_RED = 0xff0000
+MOD_ROLE_ID = 859636240978673715
 
 GREEN = "<:Green:860713764742496258>"
 GREEN_ID = "860713764742496258"
@@ -18,6 +19,30 @@ TRASH_ID = 864378434980282369
 MUTED_ID = 861271876185751553
 MEMBER_ROLE_ID = 862919875060039680
 
+async def lock(ctx, channel: discord.TextChannel = None):
+    server = ctx.guild
+    channel = channel or ctx.channel
+    overwrite = channel.overwrites_for(server.default_role)
+    overwrite.send_messages = False
+
+    member_role = discord.utils.get(server.roles, id=MEMBER_ROLE_ID)
+    mod_role = discord.utils.get(server.roles, id=MOD_ROLE_ID)
+    
+    await channel.set_permissions(member_role, overwrite=overwrite)
+    await channel.set_permissions(mod_role, send_messages=True) # let mods still send
+    await ctx.send(f"{GREEN} Channel locked.")
+
+async def unlock(ctx, channel: discord.TextChannel = None):
+    server = ctx.guild
+    channel = channel or ctx.channel
+
+    member_role = discord.utils.get(server.roles, id=MEMBER_ROLE_ID)
+    await channel.set_permissions(member_role, overwrite=None)
+    await ctx.send(f"{GREEN} Channel unlocked.")
+
+# undo all overwrites
+# for role in server.roles:
+#         await channel.set_permissions(role, overwrite=None)
 
 async def give_all_member(ctx):
     server = ctx.guild
