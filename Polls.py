@@ -202,8 +202,6 @@ async def send_poll_results(channel, message):
 
     await channel.send(file=file, embed=embed)
 
-
-
 def read_poll_color(channel):
     with open("Output/ServerConfig.txt", 'r') as file:
         file_contents = FileContents.get_file_contents(file)
