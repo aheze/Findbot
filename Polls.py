@@ -215,12 +215,6 @@ async def set_poll_color(ctx, color):
     Utilities.save_key_value_to_file("Output/ServerConfig.txt", f'pollcolor-{channel_id}', color)
     await ctx.message.add_reaction(GREEN)
 
-def index_containing_substring(the_list, substring):
-    for i, s in enumerate(the_list):
-        if substring in s:
-              return i
-    return -1
-
 def poll_color_to_hex(color):
     if color == "blue":
         hex_color = 0x00B2EA

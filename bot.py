@@ -49,6 +49,10 @@ GREEN_ID = "860713764742496258"
 FINDBOT_ID = "784531493204262942"
 FINDBOT_TEST_ID = "860667927345496075"
 
+# @bot.command(name="deleteallemojis")
+# async def delete_all_emojis(ctx):
+#     for emoji in ctx.guild.emojis:
+#         await emoji.delete()
 
 @bot.command(name='ping')
 async def ping(ctx):

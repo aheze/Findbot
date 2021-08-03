@@ -4,6 +4,11 @@ import discord
 import random
 import asyncio
 
+def append_to_file(file, keyvalue):
+    with open(file, 'a') as f:
+        string = keyvalue + "\n"
+        f.write(string)
+
 def save_key_value_to_file(file, key, value):
     line_overridden = False
     with open(file, 'r') as f:
@@ -44,6 +49,13 @@ async def get_message_from_url(bot, url):
     message = await channel.fetch_message(message_id)
     return message
 
+def get_specific_emoji(bot, server_ids, emoji_name):
+    for server_id in server_ids:
+        server = bot.get_guild(server_id)
+        found_emoji = discord.utils.get(server.emojis, name=emoji_name)
+        if found_emoji:
+            return found_emoji
+
 # get an emoji by name
 def get_emoji(bot, name):
     emoji = None
@@ -55,6 +67,13 @@ def get_emoji(bot, name):
             break
 
     return emoji
+
+def get_specific_emoji_from_id(bot, server_ids, emoji_id):
+    for server_id in server_ids:
+        server = bot.get_guild(server_id)
+        found_emoji = discord.utils.get(server.emojis, id=emoji_id)
+        if found_emoji:
+            return found_emoji
 
 def get_emoji_from_id(bot, id):
     emoji = None

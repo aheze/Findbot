@@ -141,6 +141,7 @@ class HelpFactory:
 
         string = ""
         for index, child in enumerate(node.path):
+            print("Loop.")
             if index == 0:
                 greeting = Utilities.random_message("greeting", ctx.author.mention)
                 greeting_name = greeting.replace("<Hello>", greeting)
@@ -148,12 +149,17 @@ class HelpFactory:
                 string += text
             else:
                 node_info = HelpBase.get_node_info(child, emoji_selected=False)
-                emoji = Utilities.get_emoji(bot, node_info.emoji_name)
+                print(f"nodeinfo: {node_info}")
+                print(f"em name: {node_info.emoji_name}")
+                emoji = Utilities.get_specific_emoji(bot, [871866926173921320, 871866989294006382], node_info.emoji_name)
+                print(f"emoji: {emoji}")
                 replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, string, emoji.id)
                 existing_message_string = replaced_existing + "〰〰〰〰〰\n"
                 text, emoji_to_action, done, instructions = self.get_help_content(bot, "", ctx.author.id, child, node_info.selected_header_name, False)
                 text = HelpBase.sub_server_stats(text, server)
                 string = existing_message_string + text
+
+            print(f"string: {string}")
 
             # is last node in the tree, so add reactions and handle actions
             if index == len(node.path) - 1:
@@ -252,7 +258,7 @@ class HelpFactory:
         
         if len(child_node_infos) > 0:
             for node_info in child_node_infos:
-                emoji = Utilities.get_emoji(bot, node_info.emoji_name)
+                emoji = Utilities.get_specific_emoji(bot, [871866926173921320, 871866989294006382], node_info.emoji_name)
                 
                 message_body += f"{emoji} {node_info.options_name}\n"
                 

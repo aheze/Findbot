@@ -57,11 +57,8 @@ def toggle_emoji(emoji_name, selected_emoji_name):
         if selected_emoji_name == emoji_name:
             opposite = emoji_name.removesuffix("_") + "Selected"
     else:
-        if "Unselected" in selected_emoji_name:
-            selected_emoji_name = selected_emoji_name.removesuffix("Unselected")
-
-        if emoji_name != selected_emoji_name:
-            opposite = emoji_name + "Unselected"
+        if selected_emoji_name == emoji_name:
+            opposite = emoji_name + "Selected"
         
     return opposite
 
@@ -72,26 +69,27 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
     p = re.compile("\<:.+\>")
     result = p.findall(previous_message)
 
-    selected_emoji = Utilities.get_emoji_from_id(bot, int(except_selected_id))
+    
+    selected_emoji = Utilities.get_specific_emoji_from_id(bot, [871866926173921320, 871866989294006382], int(except_selected_id))
 
     for emoji_result in result:
         emoji_split = emoji_result.removeprefix("<:").split(":")
         emoji_name = emoji_split[0]
 
-        if "BotCommands" in selected_emoji.name:
+        if "Commands" in selected_emoji.name:
             previous_message = previous_message.replace("Bot Commands", "__**B**__ot Commands")
-        if "ServerInformation" in selected_emoji.name:
+        if "Info" in selected_emoji.name:
             previous_message = previous_message.replace("Server Information", "Server __**I**__nformation")
-        if "StatsChart" in selected_emoji.name:
+        if "Stats" in selected_emoji.name:
             previous_message = previous_message.replace("Server/App Stats", "Server/App __**S**__tats")
-        if "RoleInformation" in selected_emoji.name:
+        if "Roles" in selected_emoji.name:
             previous_message = previous_message.replace("Role Information", "__**R**__ole Information")
-        if "CustomQuestion" in selected_emoji.name:
+        if "Help" in selected_emoji.name:
             previous_message = previous_message.replace("Ask a custom question", "__**A**__sk a custom question")
 
         
         new_name = toggle_emoji(emoji_name, selected_emoji.name)
-        new_emoji = Utilities.get_emoji(bot, new_name)
+        new_emoji = Utilities.get_specific_emoji(bot, [871866926173921320, 871866989294006382], new_name)
 
         previous_message = previous_message.replace(str(emoji_result), f"{new_emoji}")
 
@@ -165,9 +163,9 @@ def get_node_info(node, emoji_selected: bool = True):
             emoji_name += "Selected"
         else:
             emoji_name += "_"
-    else:
-        if not emoji_selected:
-            emoji_name += "Unselected"
+    # else:
+    #     if not emoji_selected:
+    #         emoji_name += "Unselected"
 
     topic_split = full_split[1].split("~~")
 

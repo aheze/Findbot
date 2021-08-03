@@ -13,12 +13,16 @@ EVENT_FOOTER = 'Be at the top to get the "Beta Tester" role!'
 def read_reaction_line(line):
     components = line.strip().split(":", 2) # address : emoji ID : action
     address_components = components[0].split("/")
+    value_split = components[1].split(",")
+    print(address_components)
+    print(value_split)
 
     server_id = int(address_components[0])
     channel_id = int(address_components[1])
     message_id = int(address_components[2])
-    emoji_id = components[1]
-    action = components[2]
+
+    emoji_id = value_split[0]
+    action = value_split[1]
 
     return ReactionAction(
         server_id,
@@ -36,89 +40,14 @@ class ReactionAction:
         self.emoji_id = emoji_id 
         self.action = action
 
-def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = "Output/ReactionActions.txt"):
-
+def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = 'Output/ReactionActions.txt'):
+    print("save!!")
     message_address = f"{server_id}/{channel_id}/{message_id}"
-    with open(filename, 'r+') as file:
-        file_contents = FileContents.get_file_contents(file)
+    value = f"{emoji_id},{action}"
+    keyvalue = f"{message_address}:{value}"
 
-        duplicate_lines = []
-        for line in file_contents:
-            if message_address in line:
-                if str(emoji_id) in line:
-                    duplicate_lines.append(line)
-                    break
-
-    if duplicate_lines:
-        print("Reaction action has errors in these lines:")
-        print(duplicate_lines)
-        with open('Output/Logs/Errors.log', 'a') as file:
-            file.write(f'Reaction action has errors in these lines: {duplicate_lines}\n')
-
-        return True # has error
-    else:
-        with open(filename, 'a') as file:
-            string = f"{message_address}:{emoji_id}:{action}\n"
-            file.write(string)
-
-def index_containing_substring(the_list, substring):
-    for i, s in enumerate(the_list):
-        if substring in s:
-              return i
-    return -1
-
-async def event_leaderboard(bot, ctx, ping = None):
-    with open("Output/Events.txt", 'r') as file:
-
-        leaderboard = []
-        file_contents = FileContents.get_file_contents(file)
-        for line in file_contents:
-            line_split = line.split(":")
-            user_id = int(line_split[0])
-            user = bot.get_user(user_id)
-            number = int(line_split[1])
-
-            tuple = (user, number)
-            leaderboard.append(tuple)
-
-        leaderboard.sort(key=lambda tup: tup[1], reverse=True)  # sorts in place
-
-        leaderboard_description = ""
-        for (index, tuple) in enumerate(leaderboard):
-            user = tuple[0]
-            points = tuple[1]
-
-            starting_trophy = ""
-            if index == 0:
-                starting_trophy = Utilities.get_emoji(bot, "First")
-            elif index == 1:
-                starting_trophy = Utilities.get_emoji(bot, "Second")
-            elif index == 2:
-                starting_trophy = Utilities.get_emoji(bot, "Third")
-            else:
-                starting_trophy = Utilities.get_emoji(bot, "NotSelected")
-
-            new_line = ""
-            if points == 1:
-                new_line += f"{starting_trophy} {points} point: "
-            else:
-                new_line += f"{starting_trophy} {points} points: "
-
-            if ping:
-                new_line += f"{user.mention}\n"
-            else:
-                new_line += f"**{user.name}**\n"
-
-            leaderboard_description += new_line
-
-        description_start = EVENT_DESCRIPTION
-        description = f"{description_start}\n\n{leaderboard_description}"
-
-        channel = ctx.channel
-        embed = discord.Embed(title=f'Leaderboard for the "{EVENT_NAME}" event!', description=description, color=0xebc334)
-        embed.set_footer(text=EVENT_FOOTER)
-
-        await channel.send(embed=embed)
+    print(keyvalue)
+    Utilities.append_to_file(filename, keyvalue)
 
 async def determine_reaction_action(bot, payload, add_instructions):
     reacted_message_id = payload.message_id
@@ -135,63 +64,33 @@ async def determine_reaction_action(bot, payload, add_instructions):
             message_user_id = message.author.id
 
             if add_instructions == "add":
-                new_file_contents = []
-                with open("Output/Events.txt", 'r') as file:
-                    file_contents = FileContents.get_file_contents(file)
-                    new_file_contents = file_contents
-
-                    matching_user_index = index_containing_substring(file_contents, str(message_user_id))
-                    if matching_user_index == -1:
-                        new_file_contents.append(f"{message_user_id}:1")
+                if reacted_emoji.name == "Plus1":
+                    current_value = Utilities.read_value_from_file('Output/Events.txt', str(message_user_id))
+                    if current_value:
+                        number = int(current_value) + 1
+                        Utilities.save_key_value_to_file('Output/Events.txt', str(message_user_id), str(number))
                     else:
-                        line = new_file_contents[matching_user_index]
-                        line_split = line.split(":")
-                        number = int(line_split[1])
-                        if reacted_emoji.name == "Plus1":
-                            number += 1
-                        else:
-                            number += 3
-                        combined = f"{message_user_id}:{number}"
-                        new_file_contents[matching_user_index] = combined
-
-                with open("Output/Events.txt", 'w') as file:
-                    combined = FileContents.combine_file_contents(new_file_contents)
-                    file.write(combined)
+                        Utilities.save_key_value_to_file('Output/Events.txt', str(message_user_id), "1")
 
                 with open('Output/Output.txt', 'a') as file:
                     string = f"{message.jump_url}\n"
                     file.write(string)
             else:
-                new_file_contents = []
-                with open("Output/Events.txt", 'r') as file:
-                    file_contents = FileContents.get_file_contents(file)
-                    new_file_contents = file_contents
-
-                    matching_user_index = index_containing_substring(file_contents, str(message_user_id))
-                    if matching_user_index != -1:
-                        line = new_file_contents[matching_user_index]
-                        line_split = line.split(":")
-                        number = int(line_split[1])
-                        if reacted_emoji.name == "Plus1":
-                            number -= 1
-                        else:
-                            number -= 3
-                        combined = f"{message_user_id}:{number}"
-                        new_file_contents[matching_user_index] = combined
-
-                with open("Output/Events.txt", 'w') as file:
-                    combined = FileContents.combine_file_contents(new_file_contents)
-                    file.write(combined)
+                if reacted_emoji.name == "Plus1":
+                    current_value = Utilities.read_value_from_file('Output/Events.txt', str(message_user_id))
+                    if current_value:
+                        number = int(current_value) - 1
+                        Utilities.save_key_value_to_file('Output/Events.txt', str(message_user_id), str(number))
 
     async def read_file(file):
         file_contents = FileContents.get_file_contents(file)
-
         for line in file_contents:
             user_id = str(payload.user_id)
-
             action = read_reaction_line(line)
-
             if reacted_message_id == action.message_id:
+                print("SAME")
+                print(reacted_emoji.id)
+                print(action.emoji_id)
                 if str(reacted_emoji.id) == action.emoji_id:
                     await perform_reaction_action(bot, user_id, action.server_id, action.channel_id, action.message_id, action.emoji_id, action.action, add_instructions)
 
