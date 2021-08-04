@@ -164,16 +164,14 @@ async def make_poll(bot, ctx, args):
             for emoji in emojis:
                 await sent_message.add_reaction(emoji)
 
-async def check_reply(bot, message):
+async def check_reply(message):
     if message.reference is not None:
         if message.content == "show":
             original_message_reference_id = message.reference.message_id
-            with open('Output/PollsLog.txt', 'r') as file:
-                file_contents = FileContents.get_file_contents(file)
-                for line in file_contents:
-                    if str(original_message_reference_id) in line:
-                        original_message = await message.channel.fetch_message(original_message_reference_id)
-                        await send_poll_results(message.channel, original_message)
+            line = Utilities.check_existing_in_file('Output/PollsLog.txt', str(original_message_reference_id))
+            if line:
+                original_message = await message.channel.fetch_message(original_message_reference_id)
+                await send_poll_results(message.channel, original_message)
 
 async def show_poll_results(bot, message_link):
     message = await Utilities.get_message_from_url(bot, message_link)

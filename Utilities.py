@@ -35,6 +35,13 @@ def read_value_from_file(file, keyword):
                 line_split = line.split(":", 1)
                 return line_split[1]
 
+def check_existing_in_file(file, keyword):
+    with open(file, 'r') as f:
+        file_contents = FileContents.get_file_contents(file)
+        for line in file_contents:
+            if keyword in line:
+                return line
+
 
 
 async def get_message_from_url(bot, url):

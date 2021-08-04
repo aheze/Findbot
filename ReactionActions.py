@@ -6,9 +6,6 @@ import Help
 import discord
 
 PROGRESS_EMOJI_ID = 863079541675917402
-EVENT_NAME = "Funcing destroy the bot"
-EVENT_DESCRIPTION = "Exploit <@784531493204262942>'s censoring loopholes: **get 1 point** for every should-be-censored word or false positive! Spam test words in <#864710025460187156>. Challenge ends July 15th, 11:59 PM PST."
-EVENT_FOOTER = 'Be at the top to get the "Beta Tester" role!'
 
 def read_reaction_line(line):
     components = line.strip().split(":", 2) # address : emoji ID : action
@@ -155,28 +152,28 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
                                 await message.remove_reaction(reaction, user)
 
                 await message.remove_reaction(progress_reaction, bot.user)
-    elif "help." in action_string:
-        action_split = action_string.split(".")
-        topic_id = int(action_split[1].strip())
-        session_user_id = int(action_split[2].strip())
+    # elif "help." in action_string:
+    #     action_split = action_string.split(".")
+    #     topic_id = int(action_split[1].strip())
+    #     session_user_id = int(action_split[2].strip())
 
-        if session_user_id == int(user_id):
-            cleanup_message_reactions(server_id, channel_id, message_id)
-            await Help.continue_help(bot, server, channel, message, topic_id, session_user_id, emoji_id)
-        else:
-            if extra_instructions == "add":
-                progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
-                await message.add_reaction(progress_reaction)
+    #     if session_user_id == int(user_id):
+    #         cleanup_message_reactions(server_id, channel_id, message_id)
+    #         await Help.continue_help(bot, server, channel, message, topic_id, session_user_id, emoji_id)
+    #     else:
+    #         if extra_instructions == "add":
+    #             progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
+    #             await message.add_reaction(progress_reaction)
 
-                for reaction in message.reactions:
-                    if reaction.emoji.id == int(emoji_id):
-                        users = await reaction.users().flatten()
-                        for user in users:
-                            is_bot = Permissions.check_is_bot(user)
-                            is_session_user = session_user_id == user.id
-                            if is_bot == False and is_session_user == False:
-                                await message.remove_reaction(reaction, user)
-                await message.remove_reaction(progress_reaction, bot.user)
+    #             for reaction in message.reactions:
+    #                 if reaction.emoji.id == int(emoji_id):
+    #                     users = await reaction.users().flatten()
+    #                     for user in users:
+    #                         is_bot = Permissions.check_is_bot(user)
+    #                         is_session_user = session_user_id == user.id
+    #                         if is_bot == False and is_session_user == False:
+    #                             await message.remove_reaction(reaction, user)
+    #             await message.remove_reaction(progress_reaction, bot.user)
 
 
 def cleanup_message_reactions(server_id, channel_id, message_id):

@@ -24,6 +24,7 @@ import Stats
 import ServerStatus
 import Polls
 import Config
+import Events
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -49,10 +50,28 @@ GREEN_ID = "860713764742496258"
 FINDBOT_ID = "784531493204262942"
 FINDBOT_TEST_ID = "860667927345496075"
 
-# @bot.command(name="deleteallemojis")
-# async def delete_all_emojis(ctx):
-#     for emoji in ctx.guild.emojis:
-#         await emoji.delete()
+@bot.command(name="deleteallemojis")
+async def delete_all_emojis(ctx):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    await ctx.send("Type `yes` to confirm deleting all emoji from this server.")
+    def check(m):
+        return m.content == 'yes' and m.channel == ctx.channel
+
+    msg = await bot.wait_for('message', timeout=10.0, check=check)
+    if msg:
+        deleting_message = await ctx.send("Confirmed. Deleting...")
+        emojis_count = len(ctx.guild.emojis)
+        for index, emoji in enumerate(ctx.guild.emojis):
+            await emoji.delete()
+
+            if index == emojis_count - 1:
+                await deleting_message.edit(f"Finished deleting.")
+            else:
+                await deleting_message.edit(f"Confirmed. Deleting ({index + 1}/{emojis_count})")
+    else:
+        await ctx.send("Cancelled.")
+
+
 
 @bot.command(name='ping')
 async def ping(ctx):
@@ -175,22 +194,28 @@ async def set_reaction_roles(ctx, message_link, *reaction_roles):
     if Permissions.check_no_admin_permissions(ctx.author): return
     await ReactionRoles.set_reaction_roles(bot, ctx, message_link, reaction_roles)
 
-# @bot.command(name='setmodlog')
-# async def set_modlog(ctx, channel: discord.TextChannel):
-#     if Permissions.check_no_admin_permissions(ctx.author): return
-#     await Config.set_modlog(ctx, channel)
-
 
 @bot.command(name='config')
 async def configurate(ctx, name, channel: discord.TextChannel):
     if Permissions.check_no_admin_permissions(ctx.author): return
     await Config.configurate(ctx, name, channel)
 
+@bot.group()
+async def event(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send('Event [under construction]')
 
-@bot.command(name='eventleaderboard')
-async def set_modlog(ctx, ping=None):
+@event.command()
+async def leaderboard(ctx, ping=None):
+    print("lead")
     if Permissions.check_no_permissions(ctx.author): return
-    await ReactionActions.event_leaderboard(bot, ctx, ping)
+    await Events.send_leaderboard(bot, ctx, ping)
+
+@event.command()
+async def new(ctx):
+    print("lead")
+    if Permissions.check_no_permissions(ctx.author): return
+    await Events.make_new_event(bot, ctx)
 
 
 @bot.command(name='updatestats')
@@ -202,7 +227,10 @@ async def update_stats(ctx):
 async def on_message(message):
     if message.channel.id == z_About.IGNORED_CHANNEL_ID: return
     if message.author == bot.user: return
-    await Polls.check_reply(bot, message)
+
+    await Polls.check_reply(message)
+    await Events.check_reply(message)
+
     if Permissions.check_no_admin_permissions(message.author) == False:
         # Needed to allow other commands to work
         await bot.process_commands(message)
@@ -254,6 +282,7 @@ async def on_invite_create(invite):
 @bot.event
 async def on_ready():
     print(f"Ready - {z_About.INFO}!")
+    print(discord.version_info)
     asyncio.create_task(TimedActions.check_timed_actions(bot))
     asyncio.create_task(Help.clean_up_helps())
 
