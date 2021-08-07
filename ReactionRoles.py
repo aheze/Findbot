@@ -9,9 +9,8 @@ RED = "<:Red:860713765107400714>"
 GREEN = "<:Green:860713764742496258>"
 
 async def set_reaction_roles(bot, ctx, message_link, reaction_roles):
-
     print("set reaction roles!")
-
+    
     link = message_link.split('/')
 
     server_id = int(link[4])

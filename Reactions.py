@@ -37,9 +37,6 @@ async def set_claim_role(bot, ctx, user: discord.User, emoji_role_name: str, in_
         emoji_name = name_split[0].replace(" ", "")
         role_name = name_split[0]
 
-    print(emoji_name)
-    print(role_name)
-
     emoji = Utilities.get_emoji(bot, emoji_name)
     role = discord.utils.get(server.roles, name=role_name)
     role_name = role.name

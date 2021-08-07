@@ -37,7 +37,7 @@ def read_value_from_file(file, keyword):
 
 def check_existing_in_file(file, keyword):
     with open(file, 'r') as f:
-        file_contents = FileContents.get_file_contents(file)
+        file_contents = FileContents.get_file_contents(f)
         for line in file_contents:
             if keyword in line:
                 return line

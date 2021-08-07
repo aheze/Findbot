@@ -11,8 +11,6 @@ def read_reaction_line(line):
     components = line.strip().split(":", 2) # address : emoji ID : action
     address_components = components[0].split("/")
     value_split = components[1].split(",")
-    print(address_components)
-    print(value_split)
 
     server_id = int(address_components[0])
     channel_id = int(address_components[1])
@@ -38,12 +36,10 @@ class ReactionAction:
         self.action = action
 
 def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = 'Output/ReactionActions.txt'):
-    print("save!!")
     message_address = f"{server_id}/{channel_id}/{message_id}"
     value = f"{emoji_id},{action}"
     keyvalue = f"{message_address}:{value}"
 
-    print(keyvalue)
     Utilities.append_to_file(filename, keyvalue)
 
 async def determine_reaction_action(bot, payload, add_instructions):
@@ -85,9 +81,6 @@ async def determine_reaction_action(bot, payload, add_instructions):
             user_id = str(payload.user_id)
             action = read_reaction_line(line)
             if reacted_message_id == action.message_id:
-                print("SAME")
-                print(reacted_emoji.id)
-                print(action.emoji_id)
                 if str(reacted_emoji.id) == action.emoji_id:
                     await perform_reaction_action(bot, user_id, action.server_id, action.channel_id, action.message_id, action.emoji_id, action.action, add_instructions)
 

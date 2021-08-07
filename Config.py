@@ -50,8 +50,6 @@ def get_configurated_channel(bot, channel_type):
     value_split = value.split("/")
     server_id = int(value_split[0])
     channel_id = int(value_split[1])
-    print(value_split)
     log_server = bot.get_guild(server_id)
     log_channel = log_server.get_channel(channel_id)
-    print(log_channel)
     return log_channel

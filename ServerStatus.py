@@ -10,14 +10,14 @@ async def on_member_join(bot, member):
     await Moderation.give_member_role(member)
     log_channel = Config.get_configurated_channel(bot, "status")
     embed_log = discord.Embed(title=f"Member joined", description=f"{member.mention} ({member.id})", color=0x5ea4ff)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     await log_channel.send(embed=embed_log)
 
 async def on_member_remove(bot, member):
     Stats.update_server_member_data(member.guild)
     log_channel = Config.get_configurated_channel(bot, "status")
     embed_log = discord.Embed(title=f"Member left", description=f"{member.mention} ({member.id})", color=0x995eff)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     await log_channel.send(embed=embed_log)
 
 async def on_voice_state_update(bot, member, before, after):
@@ -73,7 +73,7 @@ async def on_voice_state_update(bot, member, before, after):
     joined = "\n".join(changed)
 
     embed_log = discord.Embed(title=f"VC status changed", description=f"{member.mention} ({member.id})\n{joined}", color=member.color)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     await log_channel.send(embed=embed_log)
 
 
@@ -84,7 +84,7 @@ async def on_invite_create(bot, invite):
     description = f"By {created_user.mention} ({created_user.id})\nValid for: {time_remaining} ({invite.max_uses} max uses)\nIs temporary: {invite.temporary}"
 
     embed_log = discord.Embed(title=f"Invite Created", description=description, color=0xf542a7)
-    embed_log.set_author(name=created_user.name, url=f"https://discord.com/users/{created_user.id}", icon_url=created_user.avatar_url)
+    embed_log.set_author(name=created_user.name, url=f"https://discord.com/users/{created_user.id}", icon_url=created_user.avatar.url)
     embed_log.add_field(name="Invite Code", value=f"[{invite.code}]({invite.url})", inline=False)
     await log_channel.send(embed=embed_log)
 

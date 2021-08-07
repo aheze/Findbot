@@ -11,28 +11,58 @@ from anytree import Node, RenderTree, search
 import discord
 
 class HelpButtonView(discord.ui.View):
-    def __init__(self, bot, session_user_id, emoji_to_digit):
-        super().__init__()
+    session_message = None
+
+    def __init__(self, bot, session_user_id, previous_digit_id, current_digit_id, emoji_to_digit):
+        super().__init__(timeout=180)
         self.bot = bot
         self.session_user_id = session_user_id
 
-        for emoji, digit_id in emoji_to_digit:
-            self.add_item(HelpButton(bot, session_user_id, emoji, digit_id))
-        
+        print("PREVIOUS digit id???")
+        print(previous_digit_id)
+
+        if previous_digit_id != 0:
+            print(f"UNDO BUTTON TO ID: {previous_digit_id}")
+            emoji = bot.get_emoji(873335307372724304)
+            self.add_item(HelpButton(bot, session_user_id, emoji, current_digit_id, previous_digit_id))
+            print("added!")
+        for emoji, to_digit_id in emoji_to_digit:
+            if emoji.name != "Currently_Unavailable":
+                self.add_item(HelpButton(bot, session_user_id, emoji, current_digit_id, to_digit_id))
+
+    async def on_timeout(self) -> None:
+        matching_helps = [x for x in helps if x.session_message if x.session_message.id == self.session_message.id]
+        continued_help = matching_helps[0]
+        await continued_help.set_timeout()
+        return await super().on_timeout()
+
+
+class HelpContent:
+    def __init__(self, message_string=None, message_buttons_view=None, embed_file=None, embed=None):
+        print("Making init!")
+        self.message_string = message_string
+        self.message_buttons_view = message_buttons_view
+        self.embed_file = embed_file 
+        self.embed = embed 
+
 class HelpButton(discord.ui.Button):
-    def __init__(self, bot, session_user_id, emoji, digit_id):
-        super().__init__(label=emoji.name, style=discord.ButtonStyle.grey)
+    def __init__(self, bot, session_user_id, emoji, current_digit_id, to_digit_id):
+        label = ""
+        if "_" not in emoji.name:
+            label = emoji.name
+
+        super().__init__(label=label, emoji=emoji, style=discord.ButtonStyle.blurple)
         self.bot = bot
         self.emoji = emoji
         self.session_user_id = session_user_id
-        self.digit_id = digit_id
+        self.current_digit_id = current_digit_id
+        self.to_digit_id = to_digit_id
 
-    async def callback(self, interaction: discord.Interaction):            
-        # original_message = await interaction.original_message()
-        print("Original message found!")
-        await continue_help(self.bot, interaction.guild, interaction.channel, interaction.message, self.digit_id, self.session_user_id, self.emoji.id)
-        # view = HelpButtonView(str(number + 1), self.session_user_id)
-        # await interaction.response.edit_message(view=view)
+    async def callback(self, interaction: discord.Interaction):   
+        print("-=-=-=-=-=-==--=-=-==-button pressed!")   
+        print(f"Going towards {self.to_digit_id}, current button id be {self.current_digit_id}")     
+        await continue_help(self.bot, interaction.channel, interaction.message, self.session_user_id, self.current_digit_id, self.to_digit_id) 
+        # await continue_help(self.bot, interaction.guild, interaction.channel, interaction.message, self.to_digit_id, self.session_user_id, self.emoji.id, self.current_digit_id)
         
 helps = []
 
@@ -48,218 +78,145 @@ async def help(bot, ctx, args):
     else:
         await help.start_help(bot, ctx)
 
-async def continue_help(bot, server, channel, message, id, session_user_id, emoji_id):
+async def continue_help(bot, channel, message, session_user_id, previous_digit_id, to_digit_id):
     matching_helps = [x for x in helps if x.session_message if x.session_message.id == message.id]
     continued_help = matching_helps[0]
-    await continued_help.continue_help(bot, server, channel, message, id, session_user_id, emoji_id)
-
-async def remove_lingering_helps():
-    global helps
-
-    for help in helps:
-        await help.set_timeout()
-
-    helps.clear()
-
-    with open('Config/HelpLog.txt', 'w') as file:
-        file.write("")
-
-async def clean_up_helps():
-    global helps
-
-    while True:
-        new_file_contents = []
-        with open('Output/HelpLog.txt', 'r') as file:
-            file_contents = FileContents.get_file_contents(file)
-            
-            for line in file_contents:
-                components = line.strip().split(":") # 0 is time, 1 is message id
-                time = TimedActions.convert_string_to_date(components[0])
-
-                if datetime.now() - timedelta(minutes=5) > time: # execute action, delete line
-                    matching_helps = [(index, x) for (index, x) in enumerate(helps) if x.session_message if x.session_message.id == int(components[1])]
-
-                    if len(matching_helps) > 0:
-                        expired_help = matching_helps[0]
-
-                        expired_help_index = expired_help[0]
-                        expired_help_object = expired_help[1]
-                        await expired_help_object.set_timeout()
-                        del helps[expired_help_index]
-                    else:
-                        new_file_contents.append(line)
-                else:
-                    new_file_contents.append(line)
-        with open('Output/HelpLog.txt', 'w') as file:
-            combined = FileContents.combine_file_contents(new_file_contents)
-            file.write(combined)
-
-        await asyncio.sleep(20)
-
+    await continued_help.continue_help(bot, channel, session_user_id, previous_digit_id, to_digit_id)
+    # await continued_help.continue_help(bot, server, channel, message, id, session_user_id, emoji_id, current_digit_id)
 
 class HelpFactory:
-    session_start_date_string = None
     session_message = None
 
-    current_help = None
-    queued_message = None
-    queued_server_id = None
-    queued_channel_id = None
-    queued_emoji_to_digit = None
-
-    done = False
-    timed_out = False
-
-    def save_help(self, start_date_string, message_id):
-        with open('Output/HelpLog.txt', 'a') as file:
-            string = f"{start_date_string}:{message_id}\n"
-            file.write(string)
-
     async def set_timeout(self, timed_out = True):
-        if not self.done:
-            self.done = True
-
-            if self.session_message:
-                server = self.session_message.guild
-                channel = self.session_message.channel
-                
-                if self.current_help:
-                    self.current_help = str(uuid.uuid4())
-                    self.queued_server_id = server.id
-                    self.queued_channel_id = channel.id
-                    self.timed_out = timed_out
-                else:
-                    ReactionActions.cleanup_message_reactions(server.id, channel.id, self.session_message.id)
-                    if self.session_message:
-                        await self.session_message.clear_reactions()
-                    if timed_out:
-                        updated_message = await channel.fetch_message(self.session_message.id)
-                        existing_message_string = updated_message.content + "\n〰〰〰〰〰\n"
-                        new_message = existing_message_string + "*Session timed out - type `.help` to start a new one!*"
-                        await self.session_message.edit(content=new_message)
-
-    async def perform_queued_continue(self):
-        if self.done:
-            ReactionActions.cleanup_message_reactions(self.queued_server_id, self.queued_channel_id, self.session_message.id)
-            await self.session_message.clear_reactions()
-            if self.timed_out:
+        if self.session_message:
+            if timed_out:
                 channel = self.session_message.channel
                 updated_message = await channel.fetch_message(self.session_message.id)
                 existing_message_string = updated_message.content + "\n〰〰〰〰〰\n"
                 new_message = existing_message_string + "*Session timed out - type `.help` to start a new one!*"
-                await self.session_message.edit(content=new_message)
+                await self.session_message.edit(content=new_message, view=None)
+
+    async def generate_help_message(self, bot, channel, session_user_id, previous_digit_id, to_digit_id=None, jump_node=None):
+        print("generating..")
+        print(f"generating to: {to_digit_id}")
+
+        topic_tree = HelpBase.parse_tree()
+        if to_digit_id:
+            node = search.findall(topic_tree, lambda node: f"{to_digit_id}<->" in node.name)[0]
+        elif jump_node:
+            node = jump_node
         else:
-            await self.add_reactions(
-                self.queued_message,
-                self.queued_server_id,
-                self.queued_channel_id,
-                self.queued_emoji_to_digit
-            )
-
-    async def jump(self, bot, ctx, letter_id):
-        node = HelpBase.jump_to_node(letter_id)
-        greeting = Utilities.random_message("greeting", ctx.author.mention)
-
-        server = ctx.guild
-        channel = ctx.channel
+            node = topic_tree
 
         string = ""
+        view = None
+        file = None
+        embed = None
+
+        text = None
+        emoji_to_digit = None
+        done = None
+        instructions = None
+
         for index, child in enumerate(node.path):
             if index == 0:
-                greeting = Utilities.random_message("greeting", ctx.author.mention)
-                greeting_name = greeting.replace("<Hello>", greeting)
-                text, emoji_to_digit, _, _ = self.get_help_content(bot, "", ctx.author.id, child, greeting_name, True)
-                string += text
+                greeting_name = child.name.replace("<Hello>", self.greeting)
+                text, emoji_to_digit, _, _ = self.get_help_content(bot, "", child, greeting_name, True)
+                string = string + text
             else:
                 node_info = HelpBase.get_node_info(child, emoji_selected=False)
                 emoji = Utilities.get_specific_emoji(bot, [871866926173921320, 871866989294006382], node_info.emoji_name)
                 replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, string, emoji.id)
                 existing_message_string = replaced_existing + "〰〰〰〰〰\n"
-                text, emoji_to_digit, done, instructions = self.get_help_content(bot, "", ctx.author.id, child, node_info.selected_header_name, False)
-                text = HelpBase.sub_server_stats(text, server)
+                text, emoji_to_digit, done, instructions = self.get_help_content(bot, "", child, node_info.selected_header_name, False)
+
+                text = HelpBase.sub_server_stats(text, channel.guild)
                 string = existing_message_string + text
 
-            # is last node in the tree, so add reactions and handle actions
-            if index == len(node.path) - 1:
-                if done:
-                    await self.set_timeout(False)
+        # is last node in the tree, so add reactions and handle actions
+        if index == len(node.path) - 1:
+            print("prev dig id:")
+            print(previous_digit_id)
+            # view = HelpButtonView(bot, session_user_id, emoji_to_digit, current_digit_id)
 
-                message = await ctx.send(string)
+            view = HelpButtonView(
+                bot=bot,
+                session_user_id=session_user_id,
+                previous_digit_id=previous_digit_id,
+                current_digit_id=to_digit_id,
+                emoji_to_digit=emoji_to_digit
+            )
 
+            if instructions:
                 if instructions == "attachment":
-                    if server and channel:
-                        url = HelpActions.determine_action(node_info.selected_header_name)
-                        print(f"URL: {url}")
-                        file = discord.File(url, filename="image.png")
-                        embed = discord.Embed()
-                        embed_url = 'attachment://image.png'
-                        embed.set_image(url=embed_url)
-                        await channel.send(file=file, embed=embed)
+                    url = HelpActions.determine_action(node_info.selected_header_name)
+                    file = discord.File(url, filename="image.png")
+                    embed = discord.Embed()
+                    embed_url = 'attachment://image.png'
+                    embed.set_image(url=embed_url)
 
-                server = ctx.guild
-                channel = message.channel
+        content = HelpContent(
+            message_string=string,
+            message_buttons_view=view,
+            embed_file=file,
+            embed=embed
+        )
 
-                now = datetime.now()
-                self.session_start_date_string = TimedActions.convert_date_to_string(now)
-                self.session_message = message
-                self.save_help(self.session_start_date_string, self.session_message.id)
-                await self.add_reactions(message, server.id, channel.id, emoji_to_digit)
+        return content
+    async def jump(self, bot, ctx, letter_id):
+        self.greeting = Utilities.random_message("greeting", ctx.author.mention)
+        node = HelpBase.jump_to_node(letter_id)
+
+        content = await self.generate_help_message(
+            bot=bot,
+            channel=ctx.channel,
+            session_user_id=ctx.author.id,
+            previous_digit_id=0,
+            current_digit_id=0,
+            jump_node=node
+        )
+
+        
+        message = await ctx.send(content.message_string, view=content.message_buttons_view)
+        self.session_message = message
+        content.message_buttons_view.session_message = message
+
+        if content.embed_file and content.embed:
+            await ctx.send(file=content.embed_file, embed=content.embed)
 
     async def start_help(self, bot, ctx):
-        topic_tree = HelpBase.parse_tree()
-        name = topic_tree.name
-        greeting = Utilities.random_message("greeting", ctx.author.mention)
-        name = name.replace("<Hello>", greeting)
+        print("starting")
+        self.greeting = Utilities.random_message("greeting", ctx.author.mention)
+        print("abotu to get")
 
-        print("start")
-        text, emoji_to_digit, _, _ = self.get_help_content(bot, "", topic_tree, name, True)
-        print("got")
-        view = HelpButtonView(bot, ctx.author.id, emoji_to_digit)
-        print("made")
-        message = await ctx.send(text, view=view)
-        print("sent")
 
-        now = datetime.now()
-        self.session_start_date_string = TimedActions.convert_date_to_string(now)
+        # async def generate_help_message(self, bot, channel, session_user_id, previous_digit_id, to_digit_id=None, jump_node=None):
+        content = await self.generate_help_message(
+            bot=bot,
+            channel=ctx.channel,
+            session_user_id=ctx.author.id,
+            previous_digit_id=None,
+            to_digit_id=0
+        )
+
+        message = await ctx.channel.send(content.message_string, view=content.message_buttons_view)
         self.session_message = message
-        self.save_help(self.session_start_date_string, self.session_message.id)
+        content.message_buttons_view.session_message = message
 
-        # await self.add_reactions(message, server.id, channel.id, emoji_to_digit)
-        # await 
+    async def continue_help(self, bot, channel, session_user_id, previous_digit_id, to_digit_id):
+        print(f"continuing... preious was {previous_digit_id}, now {to_digit_id}")
+        content = await self.generate_help_message(
+            bot=bot,
+            channel=channel,
+            session_user_id=session_user_id,
+            previous_digit_id = previous_digit_id,
+            to_digit_id=to_digit_id
+        )
 
-    async def continue_help(self, bot, server, channel, message, topic_id, session_user_id, emoji_id):
-        print("continue")
-        existing_content = message.content
-        replaced_existing = HelpBase.replace_previous_with_unselected_emoji(bot, existing_content, emoji_id)
-        existing_message_string = replaced_existing + "\n〰〰〰〰〰\n"
-        topic_tree = HelpBase.parse_tree()
-        node = search.findall(topic_tree, lambda node: f"{topic_id}<->" in node.name)[0]
-
-        node_info = HelpBase.get_node_info(node)
-        letter_id = HelpBase.generate_identifier_for_node(node)
-
-        text, emoji_to_digit, done, instructions = self.get_help_content(bot, existing_message_string, node, node_info.selected_header_name, False)
-        if done:
-            await self.set_timeout(False)
-
-        view = HelpButtonView(bot, session_user_id, emoji_to_digit)
-        text = HelpBase.sub_server_stats(text, server)
-
-        member = server.get_member(session_user_id)
-        member_roles = [role for role in member.roles if role.name == "Android" or role.name == "Finder"]
-        if len(member_roles) > 0:
-            note_embed = discord.Embed(description=f"Get here again by typing `.help {letter_id}`", color=0x34ebeb)
-            await message.edit(embed=note_embed, content=text, view=view)
-        else:
-            await message.edit(content=text, view=view)
-
-        if instructions == "attachment":
-            url = HelpActions.determine_action(node_info.selected_header_name)
-            file = discord.File(url, filename="image.png")
-            embed = discord.Embed()
-            embed_url = 'attachment://image.png'
-            embed.set_image(url=embed_url)
-            await channel.send(file=file, embed=embed)
+        # generate_help_message(self, bot, channel, session_user_id, current_digit_id=None, to_digit_id=None, jump_node=None):
+        await self.session_message.edit(content.message_string, view=content.message_buttons_view)
+        if content.embed_file and content.embed:
+            await channel.send(file=content.embed_file, embed=content.embed)
 
 
     def get_help_content(self, bot, existing_text, node, node_name, selected_emoji_version):
@@ -269,7 +226,7 @@ class HelpFactory:
         child_node_infos = HelpBase.get_child_node_infos(node, selected_emoji_version)
         emoji_to_digit = []
         message_body = ""
-        
+
         if len(child_node_infos) > 0:
             for node_info in child_node_infos:
                 emoji = Utilities.get_specific_emoji(bot, [871866926173921320, 871866989294006382], node_info.emoji_name)
@@ -288,36 +245,7 @@ class HelpFactory:
 
         
         new_message_string = f"{existing_text}{message_string}"
-
         return (new_message_string, emoji_to_digit, done, additional_instructions)
 
-    async def add_reactions(self, message, server_id, channel_id, emoji_to_digit):
-        instance_uuid = str(uuid.uuid4())
-        self.current_help = instance_uuid
-
-        has_conflict = False
-        for emoji, action in emoji_to_digit:
-            if self.current_help == instance_uuid:
-                ReactionActions.save_reaction_action(server_id, channel_id, message.id, emoji.id, action)
-                if emoji.name != "Currently_Unavailable":
-                    await message.add_reaction(emoji)
-            else:
-                has_conflict = True
-                break
-        
-        if self.current_help != instance_uuid:
-            has_conflict = True
-
-        if has_conflict:
-            await message.clear_reactions()
-            await self.perform_queued_continue()
-        else:
-            self.current_help = None
-            self.queued_message = None
-            self.queued_server_id = None
-            self.queued_channel_id = None
-            self.queued_emoji_to_digit = None
-
-    
 
         

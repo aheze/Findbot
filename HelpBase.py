@@ -163,9 +163,6 @@ def get_node_info(node, emoji_selected: bool = True):
             emoji_name += "Selected"
         else:
             emoji_name += "_"
-    # else:
-    #     if not emoji_selected:
-    #         emoji_name += "Unselected"
 
     topic_split = full_split[1].split("~~")
 

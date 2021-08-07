@@ -75,7 +75,7 @@ async def delete_all_emojis(ctx):
 
 @bot.command(name='ping')
 async def ping(ctx):
-    await Misc.ping(ctx)
+    await Misc.ping(bot, ctx)
 
 
 @bot.command(name='dance')
@@ -207,13 +207,11 @@ async def event(ctx):
 
 @event.command()
 async def leaderboard(ctx, ping=None):
-    print("lead")
     if Permissions.check_no_permissions(ctx.author): return
     await Events.send_leaderboard(bot, ctx, ping)
 
 @event.command()
 async def new(ctx):
-    print("lead")
     if Permissions.check_no_permissions(ctx.author): return
     await Events.make_new_event(bot, ctx)
 
@@ -284,7 +282,6 @@ async def on_ready():
     print(f"Ready - {z_About.INFO}!")
     print(discord.version_info)
     asyncio.create_task(TimedActions.check_timed_actions(bot))
-    asyncio.create_task(Help.clean_up_helps())
 
 
 @bot.event

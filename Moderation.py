@@ -74,7 +74,7 @@ async def ban(bot, ctx, user: discord.User, args):
     member = server.get_member(user.id)
     log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title=f"Banned", color=COLOR_RED)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Banner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
     embed_log.add_field(name="Banned:", value=f"{member.mention} ({member.id})", inline=True)
     embed_log.set_footer(text=reason_string)
@@ -94,7 +94,7 @@ async def unban(bot, ctx, user: discord.User, args):
 
     log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title=f"Unbanned", color=COLOR_GREEN)
-    embed_log.set_author(name=user.display_name, url=f"https://discord.com/users/{user.id}", icon_url=user.avatar_url)
+    embed_log.set_author(name=user.display_name, url=f"https://discord.com/users/{user.id}", icon_url=user.avatar.url)
     embed_log.add_field(name="Unbanner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
     embed_log.add_field(name="Unbanned:", value=f"{user.mention} ({user.id})", inline=True)
     embed_log.set_footer(text=reason_string)
@@ -126,7 +126,7 @@ async def general_unmute(bot, server, channel, unmuter, muted_user, args):
 
     log_channel = Config.get_configurated_channel(bot, "modlog")
     embed_log = discord.Embed(title="Unmuted", color=COLOR_GREEN)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Unmuter:", value=f"{unmuter.mention} ({unmuter.id})", inline=True)
     embed_log.add_field(name="Unmuted:", value=f"{member.mention} ({member.id})", inline=True)
     embed_log.set_footer(text=reason_string)
@@ -213,7 +213,7 @@ async def mute(bot, ctx, user: discord.User, args):
 
     log_channel = Utilities.get_modlog_channel(bot)
     embed_log = discord.Embed(title=f"Muted for {length_string}", color=COLOR_YELLOW)
-    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+    embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Muter:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
     embed_log.add_field(name="Muted:", value=f"{member.mention} ({member.id})", inline=True)
     embed_log.set_footer(text=reason_string)

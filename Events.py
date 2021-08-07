@@ -118,7 +118,6 @@ class RoleDropdown(discord.ui.Select):
                 break
             count += 1
 
-            print(role)
             option = discord.SelectOption(label=role.name)
             if role.name == "@everyone":
                 option = discord.SelectOption(label=role.name, description='Everyone will be able to vote', emoji='🟨')
@@ -158,7 +157,6 @@ class ChannelDropdown(discord.ui.Select):
                 break
             count += 1
 
-            print(channel)
             option = discord.SelectOption(label=channel.name)
             if channel.name == "Serverwide":
                 option = discord.SelectOption(label="Serverwide", description='Event is hosted in all channels', emoji='🟪')
@@ -171,9 +169,6 @@ class ChannelDropdown(discord.ui.Select):
         matching_events = [event for event in current_events if event.id == self.event_id]
         continued_event = matching_events[0]
         continued_event.allowed_channels = ",".join(self.values)
-
-
-        print(continued_event)
         await interaction.response.send_message(f'Selected channels: {self.values}')
 
 class DropdownView(discord.ui.View):

@@ -44,7 +44,7 @@ async def check_censor(bot, message, send_replacement = True):
     if len(bad_words) > 0:
 
         embed = discord.Embed(description=replacement, color=COLOR_YELLOW)
-        embed.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar_url)
+        embed.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
 
         created_at = message.created_at
         edited_at = message.edited_at
@@ -74,7 +74,7 @@ async def check_censor(bot, message, send_replacement = True):
                 else:
                     embed_log = discord.Embed(title="Censored Edited Message", color=COLOR_RED)
 
-                embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar_url)
+                embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar.url)
             
                 if send_replacement:
                     embed_log.add_field(name="User details", value=f"{message.author.mention} ({message.author.id})", inline=False)

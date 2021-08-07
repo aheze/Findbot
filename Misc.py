@@ -1,12 +1,11 @@
 import discord
 import codecs
 from cairosvg import svg2png
-import asyncio
 
-async def send(channel: discord.TextChannel, *args):
+async def send(channel: discord.TextChannel, args):
     if args:
-            message = " ".join(args)
-            await channel.send(message)
+        message = " ".join(args)
+        await channel.send(message)
 
 async def dance(ctx):
     url = "https://raw.githubusercontent.com/aheze/Findbot-Assets/main/UsagiDance.gif"
@@ -14,11 +13,12 @@ async def dance(ctx):
     embed.set_image(url=url)
     await ctx.send(embed=embed)
     
-async def ping(ctx):
-    await ctx.message.reply("pong")
+async def ping(bot, ctx):
+    embed = discord.Embed(description=f"Thanks to <@788274635871092777>.", color=0x6060ec)
+    await ctx.message.reply(f"Pong! My latency is ~{round(bot.latency * 1000)}ms.", embed=embed)
 
 async def get_pfp(ctx, user: discord.User):
-    user_pfp_link = user.avatar_url
+    user_pfp_link = user.avatar.url
     embed = discord.Embed(description=f"{user.name}'s profile pic:", color=0x008fd6)
     embed.set_image(url=user_pfp_link)
     await ctx.send(embed=embed)
