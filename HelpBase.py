@@ -147,8 +147,10 @@ class NodeInformation:
         self.digit_id = digit_id 
 
 def get_node_info(node, emoji_selected: bool = True):
-
     name_split = node.name.split("<->")
+    if len(name_split) == 1:
+        return
+        
     id = name_split[0]
     name = name_split[1]
 
