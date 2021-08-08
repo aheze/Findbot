@@ -6,6 +6,8 @@ from asyncio.base_events import Server
 import discord
 
 from discord.ext import commands
+from discord.ext import tasks
+
 from dotenv import load_dotenv
 import asyncio
 
@@ -220,7 +222,6 @@ async def new(ctx):
 async def update_stats(ctx):
     await Stats.update(ctx)
 
-
 @bot.event
 async def on_message(message):
     if message.channel.id == z_About.IGNORED_CHANNEL_ID: return
@@ -282,12 +283,20 @@ async def on_ready():
     print(f"Ready - {z_About.INFO}!")
     print(discord.version_info)
     asyncio.create_task(TimedActions.check_timed_actions(bot))
+    update_guild_stats.start()
 
+@tasks.loop(hours=2)
+async def update_guild_stats():
+    guild = bot.get_guild(807790675998277672)
+    Stats.update_server_stats(guild)
+
+@update_guild_stats.before_loop
+async def before_loop():
+    await bot.wait_until_ready()
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CheckFailure):
         await ctx.send('You need a higher role ;-;')
-
 
 bot.run(TOKEN)

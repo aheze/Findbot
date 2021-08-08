@@ -345,8 +345,9 @@ class HelpFactory:
             done = True
             message_string = node_name + "\n"
 
-            if node_name.startswith("<a>"):
-                message_string = ""
+            if "<a>" in node_name:
+                action_split = node_name.split("<a>")
+                message_string = action_split[0] + "\n"
                 additional_instructions = "attachment"
 
         

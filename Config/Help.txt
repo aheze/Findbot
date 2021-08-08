@@ -14,11 +14,11 @@
          How do you make money?~~I don't.
          Can I leave a review?~~Thanks, just type `.how rate` anywhere and you'll get a link!
          I don't have an iPhone, can I download Find?~~Not yet, unfortunately. It's currently for iOS 13 and above only, so iPhones and iPads. Sorry Android people... want to grab the role in <#858029544875622410>?
-      What can I do in this server?~~**A lot.**<n>>>> • Talk to people - everyone here is pretty friendly<n>• Get some roles - head over to <#858029544875622410><n>• Learn coding - we can help with Swift, Python, and basic web dev<n>• Play with bots - <@784531493204262942> is the server's custom bot. I can add pretty much any command you want! Drop your ideas in <#862832890374651965>.<n>• Give app feedback - found a bug or something? Just ping <aheze><n>• Make your own tutorial - try typing `.how tutorial`
+      What can I do in this server?~~**A lot.**<n>• Talk to people - everyone here is pretty friendly<n>• Get some roles - head over to <#858029544875622410><n>• Learn coding - we can help with Swift, Python, and basic web dev<n>• Play with bots - <@784531493204262942> is the server's custom bot. I can add pretty much any command you want! Drop your ideas in <#862832890374651965>.<n>• Give app feedback - found a bug or something? Just ping <aheze><n>• Make your own tutorial - try typing `.how tutorial`
       What are the rules?~~The main rule is to be kind and use common sense. You can find the rest of the rules in <#858029448586723379>.<n>*Haha __find__ get it?*
    Stats)S::Server/App Stats~~**Server Stats:** <n>
-      <member_count> members~~<a>members
-      <boosters_count> server boosters~~<a>boosters
+      <member_count> members~~Rendered chart.<a>members
+      <boosters_count> server boosters~~Rendered chart.<a>boosters
       Currently_Unavailable::*App Stats are coming soon*
    Roles)R::Role Information~~Check out the roles in <#858029544875622410>!
    Help)A::Ask a custom question~~Please DM <aheze> or ping him in <#858029742560772126>.

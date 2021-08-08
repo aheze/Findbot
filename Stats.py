@@ -1,3 +1,4 @@
+import discord
 import Utilities
 import FileContents
 import plotly.express as px
@@ -146,17 +147,20 @@ def render_stats_image(chart_config: StatChartConfig):
         fig.write_image(output_url)
         return output_url
 
-def update_server_member_data(server):
+def update_server_stats(server: discord.Guild):
     current_date = datetime.now()
     current_date_string = current_date.strftime(DATE_FORMATTING)
     current_member_count = str(server.member_count)
-    
-    Utilities.save_key_value_to_file('Output/Logs/ServerMembersLog.txt', current_date_string, current_member_count)
+    current_booster_count = str(server.premium_subscription_count)
+    Utilities.save_key_value_to_file('Logs/ServerMembersLog.txt', current_date_string, current_member_count)
+    Utilities.save_key_value_to_file('Logs/ServerBoostersLog.txt', current_date_string, current_booster_count)
 
 
 GREEN = "<:Green:860713764742496258>"
 async def update(ctx):
-    update_server_member_data(ctx.guild)
+    update_server_stats(ctx.guild)
     await ctx.message.add_reaction(GREEN)
+
+
 
 
