@@ -6,7 +6,7 @@ import discord
 
 
 async def on_member_join(bot, member):
-    Stats.update_server_member_data(member.guild)
+    Stats.update_server_stats(member.guild)
     await Moderation.give_member_role(member)
     log_channel = Config.get_configurated_channel(bot, "status")
     embed_log = discord.Embed(title=f"Member joined", description=f"{member.mention} ({member.id})", color=0x5ea4ff)
@@ -14,7 +14,7 @@ async def on_member_join(bot, member):
     await log_channel.send(embed=embed_log)
 
 async def on_member_remove(bot, member):
-    Stats.update_server_member_data(member.guild)
+    Stats.update_server_stats(member.guild)
     log_channel = Config.get_configurated_channel(bot, "status")
     embed_log = discord.Embed(title=f"Member left", description=f"{member.mention} ({member.id})", color=0x995eff)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)

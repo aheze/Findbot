@@ -1,14 +1,9 @@
 from discord import guild
 import HelpBase
 import Utilities
-import ReactionActions
 import HelpActions
-import FileContents
-import TimedActions
-import uuid
 from datetime import datetime, timedelta
-import asyncio
-from anytree import Node, RenderTree, search
+from anytree import search
 import discord
 
 helps = []

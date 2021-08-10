@@ -27,6 +27,7 @@ import ServerStatus
 import Polls
 import Config
 import Events
+import Stories
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -93,6 +94,11 @@ async def get_pfp(ctx, user: discord.User):
 @bot.command(name='help')
 async def help(ctx, *args):
     await Help.help(bot, ctx, args)
+
+
+@bot.command(name='story')
+async def story(ctx, *args):
+    await Stories.story(bot, ctx, args)
 
 
 @bot.command(name='resethelp')
