@@ -104,7 +104,7 @@ async def help(ctx, *args):
 @bot.command(name='story')
 async def story(ctx, *args):
     print("story!")
-    await Stories.story(bot, ctx, args)
+    await Stories.story(bot, guide_client, ctx.channel)
 
 
 @bot.command(name='resethelp')

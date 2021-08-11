@@ -1,7 +1,5 @@
 > Hey! So you know how I'm a bot?
 > It's a fun job. But sometimes boring.
-    Oof.
-    Yeah.
 > Yeah. So in my spare time...
     Hmm... continue.
 > I'm actually also a food connoisseur.
@@ -10,7 +8,7 @@
         > Well, let's continue.
             Sure.
                 > Nice, you continued!
-            No.[end]
+            No.
     What's a connoisseur?
         > It's a fancy term for food taster.
             Huh, weird.
