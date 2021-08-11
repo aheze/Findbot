@@ -8,6 +8,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 
+
 from dotenv import load_dotenv
 import asyncio
 
@@ -31,6 +32,7 @@ import Stories
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+GUIDE_TOKEN = os.getenv('GUIDE_DISCORD_TOKEN') 
 
 intents = discord.Intents.default()
 intents.reactions = True
@@ -42,6 +44,9 @@ intents.invites = True
 activity = discord.Game(name="getfind.app")
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(
     z_About.PREFIX), activity=activity, intents=intents, help_command=None)
+
+guide_client = discord.Client()
+
 
 # Emoji
 RED = "<:Red:860713765107400714>"
@@ -98,6 +103,7 @@ async def help(ctx, *args):
 
 @bot.command(name='story')
 async def story(ctx, *args):
+    print("story!")
     await Stories.story(bot, ctx, args)
 
 
@@ -305,4 +311,12 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.CheckFailure):
         await ctx.send('You need a higher role ;-;')
 
-bot.run(TOKEN)
+@guide_client.event
+async def on_ready():
+    print(f'{guide_client.user} has connected to Discord!')
+
+
+loop = asyncio.get_event_loop()
+loop.create_task(bot.start(TOKEN))
+loop.create_task(guide_client.start(GUIDE_TOKEN))
+loop.run_forever()

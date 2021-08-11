@@ -1,5 +1,22 @@
-Food with Findbot
-    Hey! So you know how I'm a bot?
-        I'm actually also a food connoisseur.
-            So am I!
-            What's a connoisseur?
+> Hey! So you know how I'm a bot?
+> It's a fun job. But sometimes boring.
+    Oof.
+    Yeah.
+> Yeah. So in my spare time...
+    Hmm... continue.
+> I'm actually also a food connoisseur.
+    So am I!
+        > Ooh, nice!
+        > Well, let's continue.
+            Sure.
+                > Nice, you continued!
+            No.[end]
+    What's a connoisseur?
+        > It's a fancy term for food taster.
+            Huh, weird.
+            Well, you do you.
+        > Anyways, are you hungry?
+            Yes
+                > Pog
+            No
+                > Oof

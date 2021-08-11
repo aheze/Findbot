@@ -1,0 +1,185 @@
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+>So in my spare time, I'm actually also a food connoisseur.
+    So am I!
+        >Ooh, nice!
+    What's a connoisseur?
+        >It's a fancy term for food taster.
+        >Anyways, are you hungry?
+            Yes
+                >Pog
+            No
+                >Oof
+
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+Oof.
+>Yeah. So in my spare time, I'm actually also a food connoisseur.
+So am I!
+    >Ooh, nice!
+    >Well, let's continue.
+What's a connoisseur?
+    >It's a fancy term for food taster.
+    >Anyways, are you hungry?
+    Yes
+        >Pog
+    No
+        >Oof
+
+
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+    Oof.
+>Yeah. So in my spare time, I'm actually also a food connoisseur.
+So am I!
+    >Ooh, nice!
+    >Well, let's continue.
+What's a connoisseur?
+    >It's a fancy term for food taster.
+    >Anyways, are you hungry?
+    Yes
+        >Pog
+    No
+        >Oof    
+
+
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+    Oof.
+>Yeah. So in my spare time, I'm actually also a food connoisseur.
+So am I!
+    >Ooh, nice!
+    >Well, let's continue.
+What's a connoisseur?
+    >It's a fancy term for food taster.
+    >Anyways, are you hungry?
+    Yes
+        >Pog
+    No
+        >Oof    
+
+
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+    Oof.
+>Yeah. So in my spare time, I'm actually also a food connoisseur.
+    So am I!
+        >Ooh, nice!
+        >Well, let's continue.
+    What's a connoisseur?
+        >It's a fancy term for food taster.
+            Huh, weird.
+            Well, you do you.
+        >Anyways, are you hungry?
+            Yes
+                >Pog
+            No
+                >Oof    
+
++ Food with Findbot
++ By aheze
++ Created on August 9, 2021
+> Hey! So you know how I'm a bot?
+> It's a fun job. But sometimes boring.
+Oof.
+> Yeah. So in my spare time, I'm actually also a food connoisseur.
+Interesting.
+    So am I!
+        > Ooh, nice!
+        > Well, let's continue.
+    What's a connoisseur?
+        > It's a fancy term for food taster.
+        Huh, weird.
+        Well, you do you.
+        > Anyways, are you hungry?
+            Yes
+                > Pog
+            No
+                > Oof    
+
++ Food with Findbot
++ By aheze
++ Created on August 9, 2021
+> Hey! So you know how I'm a bot?
+> It's a fun job. But sometimes boring.
+    Oof.
+> Yeah. So in my spare time...
+    Hmm... continue.
+> I'm actually also a food connoisseur.
+    So am I!
+        > Ooh, nice!
+        > Well, let's continue.
+            Sure.
+                > Nice, you continued!
+            No.[end]
+    What's a connoisseur?
+        > It's a fancy term for food taster.
+            Huh, weird.
+            Well, you do you.
+            > Anyways, are you hungry?
+                Yes
+                    > Pog
+                No
+                    > Oof    
+
+
++ Food with Findbot
++ By aheze
++ Created on August 9, 2021
+> Hey! So you know how I'm a bot?
+> It's a fun job. But sometimes boring.
+Oof.
+> Yeah. So in my spare time...
+Hmm... continue.
+> I'm actually also a food connoisseur.
+    So am I!
+        > Ooh, nice!
+        > Well, let's continue.
+            Sure.
+                > Nice, you continued!
+            No.[end]
+    What's a connoisseur?
+        > It's a fancy term for food taster.
+        Huh, weird.
+        Well, you do you.
+        > Anyways, are you hungry?
+            Yes
+            > Pog
+            > Let me feed you
+            No
+            > Oof    
+
+
+
++Food with Findbot
++By aheze
++Created on August 9, 2021
+>Hey! So you know how I'm a bot?
+>It's a fun job. But sometimes boring.
+    Oof.
+        >Yeah. So in my spare time, I'm actually also a food connoisseur.
+            So am I!
+                >Ooh, nice!
+                >Well, let's continue.
+            What's a connoisseur?
+                >It's a fancy term for food taster.
+                >Anyways, are you hungry?
+                    Yes
+                        >Pog
+                    No
+                        >Oof
