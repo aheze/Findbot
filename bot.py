@@ -48,6 +48,8 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(
 guide_client = discord.Client()
 
 
+
+
 # Emoji
 RED = "<:Red:860713765107400714>"
 GREEN = "<:Green:860713764742496258>"
@@ -101,10 +103,16 @@ async def help(ctx, *args):
     await Help.help(bot, ctx, args)
 
 
+# @bot.command()
+# async def paginate(ctx):
+#     paginator = commands.Paginator()
+#     paginator.
+#     for page in paginator.pages:
+#         await ctx.send(page)
+
 @bot.command(name='story')
 async def story(ctx, *args):
-    print("story!")
-    await Stories.story(bot, guide_client, ctx.channel)
+    await Stories.choose_story(bot, guide_client, ctx)
 
 
 @bot.command(name='resethelp')

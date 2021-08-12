@@ -1,3 +1,7 @@
+title: Food with Findbot
+description: This is the first story every written for Findbot. It's pretty bad but I hope you enjoy!
+author: aheze
+image: https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg
 > Hey! So you know how I'm a bot?
 > It's a fun job. But sometimes boring.
 > Yeah. So in my spare time...
@@ -18,3 +22,34 @@
                 > Pog
             No
                 > Oof
+
+
+
+
+title: Food with Findbot 2
+description: This is the first story every written for Findbot. It's pretty bad but I hope you enjoy!
+author: aheze
+image: https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg
+> Hey! So you know how I'm a bot?
+> It's a fun job. But sometimes boring.
+> Yeah. So in my spare time...
+    Hmm... continue.
+> I'm actually also a food connoisseur.
+    So am I!
+        > Ooh, nice!
+        > Well, let's continue.
+            Sure.
+                > Nice, you continued!
+            No.
+    What's a connoisseur?
+        > It's a fancy term for food taster.
+            Huh, weird.
+            Well, you do you.
+        > Anyways, are you hungry?
+            Yes
+                > Pog
+            No
+                > Oof
+
+
+
