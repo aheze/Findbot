@@ -110,7 +110,7 @@ class HelpFactory:
     done = False
 
     async def generate_help_message(self, bot, channel, session_user_id, to_digit_id=None, jump_node=None):
-        topic_tree = HelpBase.parse_tree()
+        topic_tree = HelpBase.parse_tree(channel.guild.id)
         if to_digit_id:
             if to_digit_id == -1:
                 node = topic_tree
@@ -209,7 +209,7 @@ class HelpFactory:
         content_string = ">>> "
         letter_id = ""
 
-        topic_tree = HelpBase.parse_tree()
+        topic_tree = HelpBase.parse_tree(guild.id)
         nodes = search.findall(topic_tree, lambda node: f"{digit_id}<->" in node.name)
         if len(nodes) > 0:
             node = nodes[0]
@@ -260,7 +260,7 @@ class HelpFactory:
     async def jump(self, bot, ctx, letter_id):
         self.greeting = Utilities.random_message("greeting", ctx.author.mention)
         self.session_user = ctx.author
-        node = HelpBase.jump_to_node(letter_id)
+        node = HelpBase.jump_to_node(ctx.guild.id, letter_id)
 
 
         node_info = HelpBase.get_node_info(node)

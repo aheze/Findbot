@@ -5,8 +5,9 @@ from anytree import Node, search
 import re
 
 # from https://stackoverflow.com/a/68331641/14351818
-def parse_tree():
-    with open('Config/Help.txt', 'r') as file:
+def parse_tree(guild_id):
+    help_file = FileContents.server_path(guild_id, "Config/Help.txt")
+    with open(help_file, 'r') as file:
         raw_contents = FileContents.get_file_contents(file)
         file_contents = []
         
@@ -111,8 +112,8 @@ def get_letter_id(node):
         letter_id = emoji_section[0]
     return letter_id
 
-def jump_to_node(letter_id):
-    topic_tree = parse_tree()
+def jump_to_node(guild_id, letter_id):
+    topic_tree = parse_tree(guild_id)
     target_id = letter_id.upper()
 
     current_node = topic_tree
