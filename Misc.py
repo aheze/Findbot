@@ -28,7 +28,7 @@ async def get_color(ctx, color: str):
     if color_string.lower() == 'ffffff':
         color_string = 'FFF'
 
-    with codecs.open('Config/FindMark.svg', encoding='utf-8', errors='ignore') as f:
+    with codecs.open('Assets/FindMark.svg', encoding='utf-8', errors='ignore') as f:
         content = f.read()
         old_colour = 'FFFFFF'
         new_colour = color_string

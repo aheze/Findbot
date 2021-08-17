@@ -15,10 +15,15 @@ def get_node_info(node):
     return node_id_name
 
 def is_quote(node_name: str):
-    return node_name.startswith(">")
+    return node_name.startswith((">", "!"))
+
+
+def is_findbot(name: str):
+    print(f"Is?? {name}")
+    return name.startswith(">")
 
 def strip_quote(node_name: str):
-    stripped = node_name.removeprefix(">").strip()
+    stripped = node_name.removeprefix(">").removeprefix("!").strip()
     return stripped
 
 async def end(guide, thread):
@@ -36,10 +41,17 @@ async def choose_story(bot, guide, ctx):
         parsed_stories.append(parsed_story)
         
     embed = discord.Embed(title="Choose a story!", description=f"Click the dropdown menu to select a story, then press the `Start` button!", color=0x00aeef)
-    view = StoriesBase.StoryDropdownChooserView(bot, guide, ctx.channel, parsed_stories)
+
+    view = StoriesBase.StoryDropdownChooserView(
+        bot=bot,
+        guide=guide,
+        channel=ctx.channel,
+        reader_user=ctx.author,
+        stories=parsed_stories,
+    )
     await ctx.send(embed=embed, view=view)
 
-async def start_story(bot, guide, channel, embed_message, story, to_id=1):
+async def start_story(bot, guide, channel, reader_user, embed_message, story, to_id=1):
     new_thread = await channel.start_thread(name=story.title, message=embed_message, type=discord.ChannelType.public_thread)
     guide_guild = guide.get_guild(new_thread.guild.id)
     guide_thread = guide_guild.get_thread(new_thread.id)
@@ -48,47 +60,67 @@ async def start_story(bot, guide, channel, embed_message, story, to_id=1):
         bot=bot,
         guide=guide,
         thread=new_thread,
+        reader_user=reader_user,
         story=story,
         to_id=to_id
     )
 
-async def tell_story(bot, guide, thread, story, to_id=1):
+async def tell_story(bot, guide, thread, reader_user, story, to_id=1):
     if to_id == -200:
         await end(guide, thread)
         return
 
     next_quotes, next_button_infos = jump_to(story.node, to_id)
 
-    if len(next_quotes) <= 1 and len(next_button_infos) == 0:
+    if len(next_quotes) == 1:
+        next_quote: StoriesBase.StoryLine = next_quotes[0]
+        if next_quote.content == "":
+            await end(guide, thread)
+            return
+
+    for (index, next_quote) in enumerate(next_quotes):
+        if next_quote.type == "quote":
+            if to_id == 1 and index == 0:
+                await thread.send(next_quote.content)
+            else:
+                async with thread.typing():
+                    length = len(next_quote.content)
+                    duration = length * 0.045
+                    await asyncio.sleep(duration)
+                    await thread.send(next_quote.content)
+        elif next_quote.type == "guide":
+            guide_guild = guide.get_guild(thread.guild.id)
+            guide_thread = guide_guild.get_thread(thread.id)
+            if to_id == 1 and index == 0:
+                await guide_thread.send(next_quote.content)
+            else:
+                async with guide_thread.typing():
+                    length = len(next_quote.content)
+                    duration = length * 0.045
+                    await asyncio.sleep(duration)
+                    await guide_thread.send(next_quote.content)
+
+    if len(next_button_infos) == 0:
         await end(guide, thread)
         return
+    else:
+        view = StoriesBase.StoryButtonView(
+            bot=bot,
+            guide=guide,
+            thread=thread,
+            reader_user=reader_user,
+            story=story,
+            next_button_infos=next_button_infos
+        )
+        embed = discord.Embed(description="<a:Typing_1:875550250155274290><a:Typing_2:875550249190559754><a:Typing_3:875550249702289408>", color=0x2f3136)
+        guide_guild = guide.get_guild(thread.guild.id)
+        guide_thread = guide_guild.get_thread(thread.id)
+        message = await guide_thread.send(embed=embed, view=view)
+        await message.edit(suppress=True)
 
-    for next_quote in next_quotes:
-        if next_quote.type == "quote":
-            async with thread.typing():
-                length = len(next_quote.content)
-                duration = length * 0.05
-                print(duration)
-                await asyncio.sleep(duration)
-                await thread.send(next_quote.content)
-
-    view = StoriesBase.StoryButtonView(
-        bot=bot,
-        guide=guide,
-        thread=thread,
-        story=story,
-        next_button_infos=next_button_infos
-    )
-
-    embed = discord.Embed(description="<a:Progress:863079541675917402>")
-    guide_guild = guide.get_guild(thread.guild.id)
-    guide_thread = guide_guild.get_thread(thread.id)
-    message = await guide_thread.send(embed=embed, view=view)
-    await message.edit(suppress=True)
 
 
 def jump_to(tree, node_id):
-    # tree = StoriesBase.parse_tree()
     nodes = search.findall(tree, lambda node: f"{node_id}<->" in node.name)
     if len(nodes) == 0:
         print("DIDN'T FIND NODE.")
@@ -109,7 +141,12 @@ def jump_to(tree, node_id):
         for (index, sibling_node) in enumerate(sibling_nodes):
             sibling_node_info = get_node_info(sibling_node)
             stripped_quote = strip_quote(sibling_node_info.name)
-            line = StoriesBase.StoryLine(type="quote", content=stripped_quote)
+
+            if is_findbot(sibling_node_info.name):
+                line = StoriesBase.StoryLine(type="quote", content=stripped_quote)
+            else:
+                line = StoriesBase.StoryLine(type="guide", content=stripped_quote)
+
             next_quotes.append(line)
 
             if len(sibling_node.children) > 0: # a button now!
@@ -148,10 +185,20 @@ def jump_to(tree, node_id):
 
                                 next_button_info = StoriesBase.StoryNodeInfo(id=next_node_info.id, name=button_node_info.name)
                                 next_button_infos.append(next_button_info)
-                            else:
-                                next_button_info = StoriesBase.StoryNodeInfo(id=-200, name=button_node_info.name)
-                                next_button_infos.append(next_button_info)
-                            break
+                            else: # out of range, jump back a level
+                                parent = button_node.parent
+                                parent_siblings_including_parent = parent.parent.children
+                                parent_node_index_in_siblings = parent_siblings_including_parent.index(parent)
+                                next_node_index = parent_node_index_in_siblings + 1
+
+                                if len(parent_siblings_including_parent) > next_node_index:
+                                    next_node = parent_siblings_including_parent[next_node_index]
+                                    next_node_info = get_node_info(next_node) 
+                                    next_button_info = StoriesBase.StoryNodeInfo(id=next_node_info.id, name=button_node_info.name)
+                                    next_button_infos.append(next_button_info)
+                                else:
+                                    next_button_info = StoriesBase.StoryNodeInfo(id=-200, name=button_node_info.name)
+                                    next_button_infos.append(next_button_info)
                         
                 break
     else:

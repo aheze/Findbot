@@ -1,24 +1,35 @@
 import Config
+import FileContents
+import ServerSettings
+
 import regex as re
 import discord
 import unicodedata
+import os
 
 COLOR_GREEN = 0x08e800
 COLOR_YELLOW = 0xffee00
 COLOR_RED = 0xff0000
 
-word_map = {}
-with open('Config/BadWords.txt', 'r') as f:
-    badwords = f.read().splitlines()
-    for word in badwords:
-        word_split = word.split("/")
-        checking_bad_word = word_split[0]
-        alternatives = (word_split[1], word_split[2])
-        word_map[checking_bad_word] = alternatives
+guild_to_word_map = {}
+guild_to_regex_bad_words = {}
 
-with open('Config/RegexBadWords.txt', 'r') as f:
-    global regexbadwords  # You want to be able to access this throughout the code
-    regexbadwords = f.read()
+
+for server_folder in os.listdir('ServerSpecific'):
+    guild_to_word_map[server_folder] = {}
+
+    bad_words_file = FileContents.server_path(server_folder, "Config/BadWordsMap.txt")
+    with open(bad_words_file, 'r') as f:
+        badwords = f.read().splitlines()
+        for word in badwords:
+            word_split = word.split("/")
+            checking_bad_word = word_split[0]
+            alternatives = (word_split[1], word_split[2])
+            guild_to_word_map[server_folder][checking_bad_word] = alternatives
+
+    regex_bad_words_file = FileContents.server_path(server_folder, "Config/BadWordsRegex.txt")
+    with open(regex_bad_words_file, 'r') as f:
+        guild_to_regex_bad_words[server_folder] = f.read()
 
 async def check_edit_censor(bot, payload):
     server = bot.get_guild(payload.guild_id)
@@ -30,6 +41,9 @@ async def check_edit_censor(bot, payload):
         await check_censor(bot, message, False)
 
 async def check_censor(bot, message, send_replacement = True):
+    if not ServerSettings.settings(message.guild.id)["swear_filter_enabled"]:
+        print("Nope!")
+        return
     message_input = message.content
 
     author = message.author
@@ -39,7 +53,7 @@ async def check_censor(bot, message, send_replacement = True):
     member_roles = [role for role in member.roles if role.name == "Developer"]
     is_dev = len(member_roles) > 0
 
-    (bad_words, replacement) = check_bad_words(message_input, is_dev)
+    (bad_words, replacement) = check_bad_words(str(message.guild.id), message_input, is_dev)
 
     if len(bad_words) > 0:
 
@@ -92,18 +106,19 @@ async def check_censor(bot, message, send_replacement = True):
                 embed_log.set_footer(text=f"Censored words: {generic_bad_words}")
                 await log_channel.send(embed=embed_log)
 
-def check_bad_words(input_str, is_dev):
+def check_bad_words(guild_id_str, input_str, is_dev):
     new_string = input_str
 
     # (filter name, user bad word)
     bad_words = []
 
-    matches = list(re.finditer(regexbadwords, remove_accents(input_str), re.IGNORECASE|re.UNICODE))
+    regex_bad_words = guild_to_regex_bad_words[guild_id_str]
+    matches = list(re.finditer(regex_bad_words, remove_accents(input_str), re.IGNORECASE|re.UNICODE))
     for match in matches[::-1]:
         match_name = match.lastgroup[:-1]
         match_text = match.group(0)
 
-        replacements = word_map.get(match_name, ("getfind.app", "getfind.app"))
+        replacements = guild_to_word_map[guild_id_str].get(match_name, ("getfind.app", "getfind.app"))
         
         if is_dev:
             replacement = replacements[1]

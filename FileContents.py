@@ -1,3 +1,11 @@
+import pathlib
+
+
+def server_path(guild_id, file_path):
+    guild_folder_path = f"ServerSpecific/{guild_id}"
+    path = pathlib.Path(guild_folder_path)
+    server_file_path = path / file_path
+    return server_file_path
 
 def get_file_contents(file):
     raw_lines = list(filter(None, file.readlines()))

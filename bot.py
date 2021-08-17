@@ -1,3 +1,4 @@
+
 # bot.py - test
 
 from logging import error
@@ -29,6 +30,7 @@ import Polls
 import Config
 import Events
 import Stories
+import MultiServer
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -103,17 +105,15 @@ async def help(ctx, *args):
     await Help.help(bot, ctx, args)
 
 
-# @bot.command()
-# async def paginate(ctx):
-#     paginator = commands.Paginator()
-#     paginator.
-#     for page in paginator.pages:
-#         await ctx.send(page)
+@bot.command(name='embed')
+async def make_embed(ctx):
+    embed = discord.Embed(description="<a:Typing_1:875550250155274290><a:Typing_2:875550249190559754><a:Typing_3:875550249702289408>", color=0x2f3136)
+    await ctx.send(embed=embed)
+
 
 @bot.command(name='story')
 async def story(ctx, *args):
     await Stories.choose_story(bot, guide_client, ctx)
-
 
 @bot.command(name='resethelp')
 async def remove_lingering_helps(ctx):
@@ -322,6 +322,20 @@ async def on_command_error(ctx, error):
 @guide_client.event
 async def on_ready():
     print(f'{guide_client.user} has connected to Discord!')
+    # MultiServer.setup_new_server(bot, bot.get_guild(807790675998277672))
+
+@bot.command(name='setup')
+async def setup_new_server(ctx):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    MultiServer.setup_new_server(bot, ctx.guild)
+
+# @bot.event
+# async def on_guild_join(guild):
+
+    # general = find(lambda x: x.name == 'general',  guild.text_channels)
+    # if general and general.permissions_for(guild.me).send_messages:
+    #     await general.send('Hello {}!'.format(guild.name))
+
 
 
 loop = asyncio.get_event_loop()
