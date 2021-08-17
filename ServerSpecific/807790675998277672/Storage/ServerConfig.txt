@@ -1,1 +1,1 @@
-{"modlog": null, "status": "871458382396133417", "swear_filter_enabled": true}
+{"modlog": "860903526355042324", "status": "871458382396133417", "swear_filter_enabled": true}

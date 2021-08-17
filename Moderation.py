@@ -139,7 +139,7 @@ async def general_unmute(bot, server, channel, unmuter, muted_user, args):
 
     await log_channel.send(embed=embed_log)
 
-    role_ids = ModerationStorage.get_roles_from_storage(muted_user.id)
+    role_ids = ModerationStorage.get_roles_from_storage(server.id, muted_user.id)
     for role_id in role_ids:
         role = discord.utils.get(server.roles, id=int(role_id))
         await member.add_roles(role)
@@ -191,21 +191,26 @@ async def mute(bot, ctx, user: discord.User, args):
     member = server.get_member(user.id)
     muted_role = discord.utils.get(server.roles, id=MUTED_ID)
     
-    member_roles = [role for role in member.roles if role.name != "@everyone"]
+
+    print(f"roles, raw: {member.roles}")
+    member_roles = [role for role in member.roles if role.name != "@everyone" and not role.is_premium_subscriber()]
+
+    print(f"Member roles are: {member_roles}")
     user_roles = [str(role.id) for role in member_roles]
     joined = ",".join(user_roles)
-    ModerationStorage.save_roles_to_storage(user.id, joined)
+
+    ModerationStorage.save_roles_to_storage(server.id, user.id, joined)
 
     await member.add_roles(muted_role)
     for role in member_roles:
         await member.remove_roles(role)
-    
 
     action_string = f"unmute.{ctx.guild.id}.{user.id}"
     keywords = ["unmute", str(user.id)]
     TimedActions.remove_timed_actions(keywords)
     TimedActions.remove_timed_actions(action_string)
     TimedActions.save_timed_action(delay_time, action_string)
+
 
     embed = discord.Embed(description=f"Muted {member.mention} for {length_string}", color=COLOR_YELLOW)
     
@@ -214,10 +219,11 @@ async def mute(bot, ctx, user: discord.User, args):
     else:
         reason_string = "No reason given"
     embed.set_footer(text=reason_string)
-
     await ctx.send(embed=embed)
 
-    log_channel = Utilities.get_modlog_channel(bot)
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=server.id, channel_type="modlog")
+    if not log_channel: await warn_no_mod_channel(guild=server)
+
     embed_log = discord.Embed(title=f"Muted for {length_string}", color=COLOR_YELLOW)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Muter:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
@@ -230,8 +236,3 @@ async def warn_no_mod_channel(guild):
     main_channel = guild.system_channel
     embed = discord.Embed(title=f"You haven't set a modlog channel yet", description=f"It's highly recommended that you do this ASAP. Just type \n```\n.config modlog #your-mod-channel```", color=COLOR_YELLOW)
     await main_channel.send(embed=embed)
-
-# async def warn_no_status_channel(guild):
-#     main_channel = guild.system_channel
-#     embed = discord.Embed(title=f"You haven't set a status channel yet", description=f"It's highly recommended that you do this ASAP. Just type \n```\n.config status #your-status-channel```", color=COLOR_YELLOW)
-#     await main_channel.send(embed=embed)

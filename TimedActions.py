@@ -10,7 +10,7 @@ TIME_FORMATTING = "%m.%d.%Y.%H.%M.%S"
 # remove
 def remove_timed_actions(keywords):
     new_file_contents = []
-    with open('Output/TimedActions.txt', 'r') as file:
+    with open('ServerShared/TimedActions.txt', 'r') as file:
         file_contents = FileContents.get_file_contents(file)
         
         for line in file_contents:
@@ -18,13 +18,13 @@ def remove_timed_actions(keywords):
             if not any(word in components[1] for word in keywords):
                 new_file_contents.append(line)
 
-    with open('Output/TimedActions.txt', 'w') as file:
+    with open('ServerShared/TimedActions.txt', 'w') as file:
         combined = FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 
 def save_timed_action(time, action):
     delay_time_string = convert_date_to_string(time)
-    with open('Output/TimedActions.txt', 'a') as file:
+    with open('ServerShared/TimedActions.txt', 'a') as file:
         string = f"{delay_time_string}:{action}\n"
         file.write(string)
 
@@ -39,7 +39,7 @@ def convert_date_to_string(date):
 async def check_timed_actions(bot):
     while True:
         new_file_contents = []
-        with open('Output/TimedActions.txt', 'r') as file:
+        with open('ServerShared/TimedActions.txt', 'r') as file:
             file_contents = FileContents.get_file_contents(file)
             
             for line in file_contents:
@@ -57,7 +57,7 @@ async def check_timed_actions(bot):
                         await Moderation.general_unmute(bot, server, None, bot.user, member, ["Unmuted by Findbot"])
                 else:
                     new_file_contents.append(line)
-        with open('Output/TimedActions.txt', 'w') as file:
+        with open('ServerShared/TimedActions.txt', 'w') as file:
             combined = FileContents.combine_file_contents(new_file_contents)
             file.write(combined)
 
