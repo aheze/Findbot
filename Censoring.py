@@ -83,7 +83,6 @@ async def check_censor(bot, message, send_replacement = True):
 
                 log_channel = Config.get_configurated_channel(bot=bot, guild_id=message.guild.id, channel_type="modlog")
                 if not log_channel: 
-                    print("No LOG CHANNEL")
                     await Moderation.warn_no_mod_channel(guild=server)
                     return
 
