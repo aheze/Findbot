@@ -8,20 +8,23 @@ import discord
 async def on_member_join(bot, member):
     Stats.update_server_stats(member.guild)
     await Moderation.give_member_role(member)
-    log_channel = Config.get_configurated_channel(bot, "status")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=member.guild.id, channel_type="status")
+    if not log_channel: await Moderation.warn_no_mod_channel(guild=member.guild)
     embed_log = discord.Embed(title=f"Member joined", description=f"{member.mention} ({member.id})", color=0x5ea4ff)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     await log_channel.send(embed=embed_log)
 
 async def on_member_remove(bot, member):
     Stats.update_server_stats(member.guild)
-    log_channel = Config.get_configurated_channel(bot, "status")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=member.guild.id, channel_type="status")
+    if not log_channel: await Moderation.warn_no_mod_channel(guild=member.guild)
     embed_log = discord.Embed(title=f"Member left", description=f"{member.mention} ({member.id})", color=0x995eff)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     await log_channel.send(embed=embed_log)
 
 async def on_voice_state_update(bot, member, before, after):
-    log_channel = Config.get_configurated_channel(bot, "status")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=member.guild.id, channel_type="status")
+    if not log_channel: return
 
     changed = []
     if before.channel != after.channel:
@@ -78,7 +81,9 @@ async def on_voice_state_update(bot, member, before, after):
 
 
 async def on_invite_create(bot, invite):
-    log_channel = Config.get_configurated_channel(bot, "status")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=invite.guild.id, channel_type="status")
+    if not log_channel: return
+
     created_user = invite.inviter
     time_remaining = format_timespan(invite.max_age)
     description = f"By {created_user.mention} ({created_user.id})\nValid for: {time_remaining} ({invite.max_uses} max uses)\nIs temporary: {invite.temporary}"

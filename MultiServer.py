@@ -72,8 +72,8 @@ def create_server_folder(bot, guild):
 
 def populate_server_config(config_path):
     server_config = {
-        "modlog_channel": None,
-        "status_channel": None,
+        "modlog": None,
+        "status": None,
         "swear_filter_enabled": False
     }
 

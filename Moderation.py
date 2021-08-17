@@ -72,7 +72,9 @@ async def ban(bot, ctx, user: discord.User, args):
         reason_string = "No reason given"
 
     member = server.get_member(user.id)
-    log_channel = Config.get_configurated_channel(bot, "modlog")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=ctx.guild.id, channel_type="modlog")
+    if not log_channel: await warn_no_mod_channel(guild=server)
+
     embed_log = discord.Embed(title=f"Banned", color=COLOR_RED)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Banner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
@@ -92,7 +94,9 @@ async def unban(bot, ctx, user: discord.User, args):
     else:
         reason_string = "No reason given"
 
-    log_channel = Config.get_configurated_channel(bot, "modlog")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=ctx.guild.id, channel_type="modlog")
+    if not log_channel: await warn_no_mod_channel(guild=server)
+
     embed_log = discord.Embed(title=f"Unbanned", color=COLOR_GREEN)
     embed_log.set_author(name=user.display_name, url=f"https://discord.com/users/{user.id}", icon_url=user.avatar.url)
     embed_log.add_field(name="Unbanner:", value=f"{ctx.author.mention} ({ctx.author.id})", inline=True)
@@ -124,7 +128,9 @@ async def general_unmute(bot, server, channel, unmuter, muted_user, args):
         embed.set_footer(text=reason_string)
         await channel.send(embed=embed)
 
-    log_channel = Config.get_configurated_channel(bot, "modlog")
+    log_channel = Config.get_configurated_channel(bot=bot, guild_id=server.id, channel_type="modlog")
+    if not log_channel: await warn_no_mod_channel(guild=server)
+
     embed_log = discord.Embed(title="Unmuted", color=COLOR_GREEN)
     embed_log.set_author(name=member.name, url=f"https://discord.com/users/{member.id}", icon_url=member.avatar.url)
     embed_log.add_field(name="Unmuter:", value=f"{unmuter.mention} ({unmuter.id})", inline=True)
@@ -220,3 +226,12 @@ async def mute(bot, ctx, user: discord.User, args):
 
     await log_channel.send(embed=embed_log)
 
+async def warn_no_mod_channel(guild):
+    main_channel = guild.system_channel
+    embed = discord.Embed(title=f"You haven't set a modlog channel yet", description=f"It's highly recommended that you do this ASAP. Just type \n```\n.config modlog #your-mod-channel```", color=COLOR_YELLOW)
+    await main_channel.send(embed=embed)
+
+# async def warn_no_status_channel(guild):
+#     main_channel = guild.system_channel
+#     embed = discord.Embed(title=f"You haven't set a status channel yet", description=f"It's highly recommended that you do this ASAP. Just type \n```\n.config status #your-status-channel```", color=COLOR_YELLOW)
+#     await main_channel.send(embed=embed)

@@ -1,5 +1,1 @@
-{
-    "modlog_channel": null,
-    "status_channel": null,
-    "swear_filter_enabled": true
-}
+{"modlog": null, "status": "871458382396133417", "swear_filter_enabled": true}

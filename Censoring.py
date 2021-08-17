@@ -1,6 +1,7 @@
 import Config
 import FileContents
 import ServerSettings
+import Moderation
 
 import regex as re
 import discord
@@ -42,7 +43,6 @@ async def check_edit_censor(bot, payload):
 
 async def check_censor(bot, message, send_replacement = True):
     if not ServerSettings.settings(message.guild.id)["swear_filter_enabled"]:
-        print("Nope!")
         return
     message_input = message.content
 
@@ -81,13 +81,17 @@ async def check_censor(bot, message, send_replacement = True):
                 for original in cleaned_bad_words:
                     embed_description = re.sub(original, f"*__{original}__*", embed_description, flags=re.IGNORECASE)
 
-                log_channel = Config.get_configurated_channel(bot, "modlog")
+                log_channel = Config.get_configurated_channel(bot=bot, guild_id=message.guild.id, channel_type="modlog")
+                if not log_channel: 
+                    print("No LOG CHANNEL")
+                    await Moderation.warn_no_mod_channel(guild=server)
+                    return
 
                 if send_replacement:
                     embed_log = discord.Embed(title="Censored Message", color=0xfcba03)
                 else:
                     embed_log = discord.Embed(title="Censored Edited Message", color=COLOR_RED)
-
+z
                 embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar.url)
             
                 if send_replacement:
