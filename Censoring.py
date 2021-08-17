@@ -91,7 +91,7 @@ async def check_censor(bot, message, send_replacement = True):
                     embed_log = discord.Embed(title="Censored Message", color=0xfcba03)
                 else:
                     embed_log = discord.Embed(title="Censored Edited Message", color=COLOR_RED)
-z
+
                 embed_log.set_author(name=message.author.display_name, url=f"https://discord.com/users/{message.author.id}", icon_url=message.author.avatar.url)
             
                 if send_replacement:
