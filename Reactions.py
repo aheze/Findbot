@@ -1,4 +1,4 @@
-
+import FileContents
 import Utilities
 import ReactionActions
 import discord
@@ -50,5 +50,6 @@ async def set_claim_role(bot, ctx, user: discord.User, emoji_role_name: str, in_
     message = await in_channel.send(embed=embed)
     channel = message.channel
 
-    ReactionActions.save_reaction_action(server.id, channel.id, message.id, emoji.id, f"claim.{role.id}.{user.id}")
+    claim_file = FileContents.server_path(ctx.guild.id, "Storage/ReactionActions.txt")
+    ReactionActions.save_reaction_action(server.id, channel.id, message.id, emoji.id, f"claim.{role.id}.{user.id}", claim_file)
     await message.add_reaction(emoji)

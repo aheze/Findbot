@@ -32,16 +32,6 @@ for server_folder in os.listdir('ServerSpecific'):
             emoji = line_split[1]
             guild_word_map[server_folder][word] = emoji
 
-# with open('Config/PollEmojis.txt', 'r') as file:
-#     file_contents = FileContents.get_file_contents(file)
-#     for lines in file_contents:
-#         line_split = lines.split("=")
-#         word = line_split[0]
-#         emoji = line_split[1]
-#         word_map[word] = emoji
-
-
-
 def get_choice_emoji_content(bot, guild_id_str, choices, color):
     used_emojis = []
 
@@ -158,7 +148,7 @@ async def make_poll(bot, ctx, args):
             color = read_poll_color(ctx.channel)
             hex_color = poll_color_to_hex(color)
 
-            poll_message_title = Utilities.random_message("poll")
+            poll_message_title = Utilities.random_message("poll", ctx.guild.id)
 
             if poll_is_yes_no:
                 emojis = ["👍", "👎"]

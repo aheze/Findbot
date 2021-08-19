@@ -54,6 +54,7 @@ def create_server_folder(bot, guild):
 
     # storage
     permanent_reaction_actions = storage_path / "PermanentReactionActions.txt"
+    reaction_actions = storage_path / "ReactionActions.txt"
     polls_log = storage_path / "PollsLog.txt"
     saved_roles = storage_path / "SavedRoles.txt"
     server_config = storage_path / "ServerConfig.txt"
@@ -61,6 +62,7 @@ def create_server_folder(bot, guild):
     tutorials_log = storage_path / "TutorialsLog.txt"
 
     with open(permanent_reaction_actions, 'w'): pass
+    with open(reaction_actions, 'w'): pass
     with open(polls_log, 'w'): pass
     with open(saved_roles, 'w'): pass
     with open(server_config, 'w'): pass

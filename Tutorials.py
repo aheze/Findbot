@@ -21,7 +21,9 @@ PROGRESS_EMOJI_ID = 863079541675917402
 
 async def send_tutorial(bot, ctx, tutorial_name):
     tutorials = []
-    with open('Config/Tutorials.txt', 'r') as file:
+
+    tutorials_file = FileContents.server_path(ctx.guild.id, "Config/Tutorials.txt")
+    with open(tutorials_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         # 0: rate
@@ -95,7 +97,8 @@ async def send_tutorial(bot, ctx, tutorial_name):
                     message_ids.append(message_string)
 
             messages_joined = ",".join(message_ids)
-            with open('Output/TutorialsLog.txt', 'a') as file:
+            tutorials_log_file = FileContents.server_path(ctx.guild.id, "Storage/TutorialsLog.txt")
+            with open(tutorials_log_file, 'a') as file:
                 string=f"{tutorial[0]}:{messages_joined}\n"
                 file.write(string)
 
@@ -106,7 +109,9 @@ async def unsend_latest_tutorial(bot, ctx, specific_command_name):
     await ctx.message.add_reaction(progress_reaction)
     latest_line = ""
     new_file_contents = []
-    with open('Output/TutorialsLog.txt', 'r') as file:
+
+    tutorials_log_file = FileContents.server_path(ctx.guild.id, "Storage/TutorialsLog.txt")
+    with open(tutorials_log_file, 'r') as file:
         file_contents = list(FileContents.get_file_contents(file))
 
         if specific_command_name:
@@ -142,7 +147,8 @@ async def unsend_latest_tutorial(bot, ctx, specific_command_name):
     await ctx.message.add_reaction(GREEN)
     await ctx.message.remove_reaction(progress_reaction, bot.user)
 
-    with open('Output/TutorialsLog.txt', 'w') as file:
+    tutorials_log_file = FileContents.server_path(ctx.guild.id, "Storage/TutorialsLog.txt")
+    with open(tutorials_log_file, 'w') as file:
         combined = FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 

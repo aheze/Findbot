@@ -258,7 +258,7 @@ class HelpFactory:
         await self.session_message.edit(combined_string, view=None)
 
     async def jump(self, bot, ctx, letter_id):
-        self.greeting = Utilities.random_message("greeting", ctx.author.mention)
+        self.greeting = Utilities.random_message("greeting", ctx.guild.id, ctx.author.mention)
         self.session_user = ctx.author
         node = HelpBase.jump_to_node(ctx.guild.id, letter_id)
 
@@ -290,7 +290,7 @@ class HelpFactory:
             await self.session_message.reply(file=content.embed_file, embed=content.embed)
 
     async def start_help(self, bot, ctx):
-        self.greeting = Utilities.random_message("greeting", ctx.author.mention)
+        self.greeting = Utilities.random_message("greeting", ctx.guild.id, ctx.author.mention)
         self.session_user = ctx.author
 
         content = await self.generate_help_message(

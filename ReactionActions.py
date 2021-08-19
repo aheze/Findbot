@@ -35,7 +35,7 @@ class ReactionAction:
         self.emoji_id = emoji_id 
         self.action = action
 
-def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename = 'Output/ReactionActions.txt'):
+def save_reaction_action(server_id, channel_id, message_id, emoji_id, action, filename):
     message_address = f"{server_id}/{channel_id}/{message_id}"
     value = f"{emoji_id},{action}"
     keyvalue = f"{message_address}:{value}"
@@ -84,10 +84,12 @@ async def determine_reaction_action(bot, payload, add_instructions):
                 if str(reacted_emoji.id) == action.emoji_id:
                     await perform_reaction_action(bot, user_id, action.server_id, action.channel_id, action.message_id, action.emoji_id, action.action, add_instructions)
 
-    with open("Output/PermanentReactionActions.txt", 'r') as file:
+    permanent_reaction_file = FileContents.server_path(server.id, "Storage/PermanentReactionActions.txt")
+    reaction_file = FileContents.server_path(server.id, "Storage/ReactionActions.txt")
+    with open(permanent_reaction_file, 'r') as file:
         await read_file(file)
 
-    with open("Output/ReactionActions.txt", 'r') as file:
+    with open(reaction_file, 'r') as file:
         await read_file(file)
 
 
@@ -145,41 +147,20 @@ async def perform_reaction_action(bot, user_id, server_id, channel_id, message_i
                                 await message.remove_reaction(reaction, user)
 
                 await message.remove_reaction(progress_reaction, bot.user)
-    # elif "help." in action_string:
-    #     action_split = action_string.split(".")
-    #     topic_id = int(action_split[1].strip())
-    #     session_user_id = int(action_split[2].strip())
-
-    #     if session_user_id == int(user_id):
-    #         cleanup_message_reactions(server_id, channel_id, message_id)
-    #         await Help.continue_help(bot, server, channel, message, topic_id, session_user_id, emoji_id)
-    #     else:
-    #         if extra_instructions == "add":
-    #             progress_reaction = Utilities.get_emoji_from_id(bot, PROGRESS_EMOJI_ID)
-    #             await message.add_reaction(progress_reaction)
-
-    #             for reaction in message.reactions:
-    #                 if reaction.emoji.id == int(emoji_id):
-    #                     users = await reaction.users().flatten()
-    #                     for user in users:
-    #                         is_bot = Permissions.check_is_bot(user)
-    #                         is_session_user = session_user_id == user.id
-    #                         if is_bot == False and is_session_user == False:
-    #                             await message.remove_reaction(reaction, user)
-    #             await message.remove_reaction(progress_reaction, bot.user)
-
 
 def cleanup_message_reactions(server_id, channel_id, message_id):
     message_address = f"{server_id}/{channel_id}/{message_id}"
     new_file_contents = []
-    with open('Output/ReactionActions.txt', 'r') as file:
+    reaction_file = FileContents.server_path(server_id, "Storage/ReactionActions.txt")
+    with open(reaction_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
         
         for line in file_contents:
             if message_address not in line:
                 new_file_contents.append(line)
 
-    with open('Output/ReactionActions.txt', 'w') as file:
+    reaction_file = FileContents.server_path(server_id, "Storage/ReactionActions.txt")
+    with open(reaction_file, 'w') as file:
         combined = FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 
@@ -187,13 +168,15 @@ def cleanup_reaction_action(server_id, channel_id, message_id, emoji_id, action_
     message_address = f"{server_id}/{channel_id}/{message_id}"
     string = f"{message_address}:{emoji_id}:{action_string}"
 
-    with open('Output/ReactionActions.txt', 'r') as file:
+    reaction_file = FileContents.server_path(server_id, "Storage/ReactionActions.txt")
+    with open(reaction_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
         for line in file_contents:
             if string in line:
                 file_contents.remove(line)
     
-    with open('Output/ReactionActions.txt', 'w') as file:
+    reaction_file = FileContents.server_path(server_id, "Storage/ReactionActions.txt")
+    with open(reaction_file, 'w') as file:
         combined = FileContents.combine_file_contents(file_contents)
         file.write(combined)

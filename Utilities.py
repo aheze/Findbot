@@ -93,9 +93,11 @@ def get_emoji_from_id(bot, id):
 
     return emoji
 
-def random_message(type, user_mention = None):
+def random_message(type, guild_id, user_mention = None):
     categories = []
-    with open('Config/RandomMessage.txt', 'r') as file:
+
+    random_message_file = FileContents.server_path(guild_id, "Config/RandomMessage.txt")
+    with open(random_message_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
 
