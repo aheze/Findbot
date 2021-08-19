@@ -1,6 +1,9 @@
 import Utilities
 import FileContents
+import ServerSettings
 import Stats
+
+import os
 import discord
 
 EMOJI_SERVER_ID = 869798779145027584
@@ -15,25 +18,38 @@ class PollInfo:
         self.counts = counts # [0, 4, 10, 3]
         self.footer = footer
 
-word_map = {}
-with open('Config/PollEmojis.txt', 'r') as file:
-    file_contents = FileContents.get_file_contents(file)
-    for lines in file_contents:
-        line_split = lines.split("=")
-        word = line_split[0]
-        emoji = line_split[1]
-        word_map[word] = emoji
+guild_word_map = {}
+
+for server_folder in os.listdir('ServerSpecific'):
+    guild_word_map[server_folder] = {}
+
+    poll_emojis_file = FileContents.server_path(server_folder, "Config/PollEmojis.txt")
+    with open(poll_emojis_file, 'r') as file:
+        file_contents = FileContents.get_file_contents(file)
+        for lines in file_contents:
+            line_split = lines.split("=")
+            word = line_split[0]
+            emoji = line_split[1]
+            guild_word_map[server_folder][word] = emoji
+
+# with open('Config/PollEmojis.txt', 'r') as file:
+#     file_contents = FileContents.get_file_contents(file)
+#     for lines in file_contents:
+#         line_split = lines.split("=")
+#         word = line_split[0]
+#         emoji = line_split[1]
+#         word_map[word] = emoji
 
 
 
-def get_choice_emoji_content(bot, choices, color):
+def get_choice_emoji_content(bot, guild_id_str, choices, color):
     used_emojis = []
 
     content = ""
     emojis = []
 
     for index, choice in enumerate(choices):
-        mapped_emojis = [value for key, value in word_map.items() if key in choice.lower()]
+        mapped_emojis = [value for key, value in guild_word_map[guild_id_str].items() if key in choice.lower()]
 
         if len(mapped_emojis) > 0 and mapped_emojis[0] not in used_emojis:
             emoji = mapped_emojis[0]
@@ -52,7 +68,8 @@ def get_choice_emoji_content(bot, choices, color):
 
 async def count_reactions(message):
     
-    with open('Output/PollsLog.txt', 'r') as file:
+    poll_emojis_file = FileContents.server_path(message.guild.id, "Storage/PollsLog.txt")
+    with open(poll_emojis_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
         for line in file_contents:
             if str(message.id) in line:
@@ -149,13 +166,15 @@ async def make_poll(bot, ctx, args):
                 used_emojis = ["👍", "👎"]
             else:
                                 # unicode emoji
-                emojis, content, used_emojis = get_choice_emoji_content(bot, choices, color)
+                emojis, content, used_emojis = get_choice_emoji_content(bot, str(ctx.guild.id), choices, color)
 
             embed = discord.Embed(title=title, description=content, color=hex_color)
             embed.set_author(name=poll_message_title, icon_url="https://raw.githubusercontent.com/aheze/Findbot-Assets/main/Poll.png")
             sent_message = await ctx.send(embed=embed)
 
-            with open('Output/PollsLog.txt', 'a') as file:
+            poll_emojis_file = FileContents.server_path(ctx.guild.id, "Storage/PollsLog.txt")
+
+            with open(poll_emojis_file, 'a') as file:
                 choices_string = "<~sep~>".join(choices)
                 used_emojis_string = ",".join(used_emojis)
                 string = f"{sent_message.id}<~meta~>{title}<~meta~>{used_emojis_string}<~meta~>{choices_string}\n"
@@ -168,7 +187,8 @@ async def check_reply(message):
     if message.reference is not None:
         if message.content == "show":
             original_message_reference_id = message.reference.message_id
-            line = Utilities.check_existing_in_file('Output/PollsLog.txt', str(original_message_reference_id))
+            poll_emojis_file = FileContents.server_path(message.guild.id, "Storage/PollsLog.txt")
+            line = Utilities.check_existing_in_file(poll_emojis_file, str(original_message_reference_id))
             if line:
                 original_message = await message.channel.fetch_message(original_message_reference_id)
                 await send_poll_results(message.channel, original_message)
@@ -178,19 +198,18 @@ async def show_poll_results(bot, message_link):
     await send_poll_results(message.channel, message)
 
 async def send_poll_results(channel, message):
-
     color = read_poll_color(channel)   
     hex_color = poll_color_to_hex(color)
     poll_info = await count_reactions(message)
 
     chart_config = Stats.GenericChartConfig(
-        output_file_name="PollOutput",
         color=color,
         counts=poll_info.counts,
         x_labels=poll_info.choices
     )
 
     image_url = Stats.render_chart(chart_config)
+
     embed = discord.Embed(title=poll_info.title, description=poll_info.description, color=hex_color)
     embed.set_author(name="Poll", url=poll_info.jump_url, icon_url="https://raw.githubusercontent.com/aheze/Findbot-Assets/main/Poll.png")
     url = 'attachment://image.png'
@@ -199,18 +218,17 @@ async def send_poll_results(channel, message):
     embed.set_footer(text=poll_info.footer)
 
     await channel.send(file=file, embed=embed)
+    os.remove(image_url)
 
 def read_poll_color(channel):
-    with open("Output/ServerConfig.txt", 'r') as file:
-        file_contents = FileContents.get_file_contents(file)
-        for line in file_contents:
-            if f'pollcolor-{channel.id}' in line:
-                color = line.split(":")[1].strip()
-                return color
+    if f'pollcolor-{channel.id}' in ServerSettings.settings(channel.guild.id):
+        color = ServerSettings.settings(channel.guild.id)[f'pollcolor-{channel.id}']
+        return color
+    else:
+        return "blue"
 
 async def set_poll_color(ctx, color):
-    channel_id = str(ctx.channel.id)
-    Utilities.save_key_value_to_file("Output/ServerConfig.txt", f'pollcolor-{channel_id}', color)
+    ServerSettings.write_settings(ctx.channel.guild.id, f'pollcolor-{ctx.channel.id}', color)
     await ctx.message.add_reaction(GREEN)
 
 def poll_color_to_hex(color):
@@ -224,6 +242,7 @@ def poll_color_to_hex(color):
         hex_color = 0xCD0CFE
     else:
         hex_color = 0xFCBB00
+
 
     return hex_color
 

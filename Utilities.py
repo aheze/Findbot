@@ -2,7 +2,7 @@ import FileContents
 
 import discord
 import random
-import asyncio
+import os
 
 def append_to_file(file, keyvalue):
     with open(file, 'a') as f:
@@ -133,3 +133,14 @@ def readable_list(list) -> str:
     if len(list) < 3:
         return ' and '.join(list)
     return ', '.join(list[:-1]) + ', and ' + list[-1]
+
+
+def uniquify(path):
+    filename, extension = os.path.splitext(path)
+    counter = 1
+
+    while os.path.exists(path):
+        path = filename + " (" + str(counter) + ")" + extension
+        counter += 1
+
+    return path

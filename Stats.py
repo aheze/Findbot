@@ -4,21 +4,20 @@ import FileContents
 import plotly.express as px
 from plotly.graph_objs import *
 import os
+import tempfile
 
 from datetime import datetime
 DATE_FORMATTING = "%m.%d.%Y"
 
 class StatChartConfig:
-    def __init__(self, log_file_path, output_file_name, y_axis_name, color_tuple):
+    def __init__(self, log_file_path, y_axis_name, color_tuple):
         self.log_file_path = log_file_path
-        self.output_file_name = output_file_name
         self.y_axis_name = y_axis_name
         self.bar_color = f"rgba({color_tuple[0]}, {color_tuple[1]}, {color_tuple[2]}, 0.75)"
         self.border_color = f"rgb({color_tuple[0]}, {color_tuple[1]}, {color_tuple[2]})" 
 
 class GenericChartConfig:
-    def __init__(self, output_file_name, color, counts, x_labels):
-        self.output_file_name = output_file_name
+    def __init__(self, color, counts, x_labels):
         self.counts = counts
         self.x_labels = x_labels
 
@@ -88,10 +87,10 @@ def render_chart(chart_config: GenericChartConfig):
     fig.update_yaxes(rangemode="tozero", showline=True, linewidth=2, linecolor='rgb(96, 181, 255)', gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', tickfont_size=24)
     fig.update_layout(layout)
 
-    output_url = f"Output/Images/{chart_config.output_file_name}.png"
-    fig.write_image(output_url)
+    temp_file = Utilities.uniquify("ServerShared/Images/PollImage.png")
+    fig.write_image(temp_file)
 
-    return output_url
+    return temp_file
 
 
 def render_stats_image(chart_config: StatChartConfig):
@@ -143,9 +142,11 @@ def render_stats_image(chart_config: StatChartConfig):
         fig.update_yaxes(showline=True, linewidth=2, linecolor=chart_config.border_color, gridwidth=2, gridcolor='rgba(255,255,255, 0.3)', title_font_size=21)
         fig.update_layout(layout)
 
-        output_url = f"Output/Images/{chart_config.output_file_name}.png"
-        fig.write_image(output_url)
-        return output_url
+
+        temp_file = Utilities.uniquify("ServerShared/Images/PollImage.png")
+        fig.write_image(temp_file)
+
+        return temp_file
 
 def update_server_stats(server: discord.Guild):
     current_date = datetime.now()

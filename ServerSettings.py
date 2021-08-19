@@ -18,7 +18,7 @@ def write_settings(guild_id, key, value):
 
     server_settings_file = FileContents.server_path(guild_id, "Storage/ServerConfig.txt")
     with open(server_settings_file, "w") as jsonFile:
-        json.dump(current_json, jsonFile)
+        json.dump(current_json, jsonFile, indent=4)
 
 
 
