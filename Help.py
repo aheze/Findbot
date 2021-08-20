@@ -110,7 +110,10 @@ class HelpFactory:
     done = False
 
     async def generate_help_message(self, bot, channel, session_user_id, to_digit_id=None, jump_node=None):
+        print("genering tree")
         topic_tree = HelpBase.parse_tree(channel.guild.id)
+        print("parsed")
+        print(topic_tree)
         if to_digit_id:
             if to_digit_id == -1:
                 node = topic_tree
@@ -125,6 +128,8 @@ class HelpFactory:
         else:
             node = topic_tree
 
+
+        print(f"node: {node}")
         string = ""
         view = None
         file = None
@@ -159,6 +164,7 @@ class HelpFactory:
                         embed_url = 'attachment://image.png'
                         embed.set_image(url=embed_url)
 
+        print(f"string: {string}")
         # is last node in the tree, so add reactions and handle actions
         if index == len(node.path) - 1:
             if node.parent:
@@ -189,6 +195,7 @@ class HelpFactory:
                     current_digit_id=to_digit_id,
                     emoji_to_digit=emoji_to_digit
                 )
+
 
         content = HelpContent(
             message_string=string,
@@ -290,6 +297,7 @@ class HelpFactory:
             await self.session_message.reply(file=content.embed_file, embed=content.embed)
 
     async def start_help(self, bot, ctx):
+        print("starting help!")
         self.greeting = Utilities.random_message("greeting", ctx.guild.id, ctx.author.mention)
         self.session_user = ctx.author
 
@@ -321,6 +329,7 @@ class HelpFactory:
 
 
     def get_help_content(self, bot, existing_text, node, node_name, selected_emoji_version):
+        print("getting help content")
         done = False
         additional_instructions = None
 
