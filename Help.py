@@ -92,6 +92,7 @@ async def help(bot, ctx, args):
 
     combined = "".join(args).strip()
 
+    print("start help!")
     if combined:
         await help.jump(bot, ctx, combined)
     else:
@@ -266,6 +267,9 @@ class HelpFactory:
 
     async def jump(self, bot, ctx, letter_id):
         self.greeting = Utilities.random_message("greeting", ctx.guild.id, ctx.author.mention)
+        if self.greeting is None:
+            self.greeting = "Help?"
+
         self.session_user = ctx.author
         node = HelpBase.jump_to_node(ctx.guild.id, letter_id)
 
@@ -297,8 +301,13 @@ class HelpFactory:
             await self.session_message.reply(file=content.embed_file, embed=content.embed)
 
     async def start_help(self, bot, ctx):
-        print("starting help!")
+        print("starting!")
         self.greeting = Utilities.random_message("greeting", ctx.guild.id, ctx.author.mention)
+        if self.greeting is None:
+            self.greeting = "Help?"
+
+        print("made")
+
         self.session_user = ctx.author
 
         content = await self.generate_help_message(

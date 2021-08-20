@@ -6,9 +6,19 @@ import re
 
 # from https://stackoverflow.com/a/68331641/14351818
 def parse_tree(guild_id):
+    print("parsing tree")
     help_file = FileContents.server_path(guild_id, "Config/Help.txt")
+
     with open(help_file, 'r') as file:
         raw_contents = FileContents.get_file_contents(file)
+        if len(raw_contents) == 0:
+            help_file = "ServerShared/Config/Help.txt"
+            
+    with open(help_file, 'r') as file:
+        raw_contents = FileContents.get_file_contents(file)
+        print(f"Raw contents: {raw_contents}")
+
+
         file_contents = []
         
         for line in raw_contents:
@@ -22,8 +32,7 @@ def parse_tree(guild_id):
 
         for index, line in enumerate(file_contents):
             leading_spaces = len(line) - len(line.lstrip(' '))
-            indent = int(leading_spaces / 3) # indent = 3 spaces
-
+            indent = int(leading_spaces / 4) # indent = 4 spaces
             emoji_split = line.split("::")
             if len(emoji_split) < 2:
                 children = stack[indent-1].children

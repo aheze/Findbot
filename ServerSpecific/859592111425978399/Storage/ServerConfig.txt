@@ -1,0 +1,5 @@
+{
+    "modlog": null,
+    "status": null,
+    "swear_filter_enabled": false
+}

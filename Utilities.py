@@ -100,7 +100,6 @@ def random_message(type, guild_id, user_mention = None):
     with open(random_message_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
 
-
         # 0: rate
         # 1: How to rate the app
         # 2: First, open...
@@ -127,6 +126,10 @@ def random_message(type, guild_id, user_mention = None):
                 message_string = message_string.replace("<m>", user_mention)
 
             return message_string
+
+    print("Nohing/...")
+
+    return
 
 
 def readable_list(list) -> str:

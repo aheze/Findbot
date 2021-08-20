@@ -149,6 +149,8 @@ async def make_poll(bot, ctx, args):
             hex_color = poll_color_to_hex(color)
 
             poll_message_title = Utilities.random_message("poll", ctx.guild.id)
+            if poll_message_title is None:
+                poll_message_title = "Poll"
 
             if poll_is_yes_no:
                 emojis = ["👍", "👎"]
