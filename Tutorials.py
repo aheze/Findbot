@@ -20,13 +20,11 @@ PROGRESS_EMOJI_ID = 863079541675917402
 
 
 async def send_tutorial(bot, ctx, tutorial_name):
-    print("send tutorial")
     tutorials = []
 
     tutorials_file = FileContents.server_path(ctx.guild.id, "Config/Tutorials.txt")
     with open(tutorials_file, 'r') as file:
         file_contents = FileContents.get_file_contents(file)
-        print("file conts")
 
         # 0: rate
         # 1: How to rate the app

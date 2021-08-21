@@ -19,7 +19,6 @@ def is_quote(node_name: str):
 
 
 def is_findbot(name: str):
-    print(f"Is?? {name}")
     return name.startswith(">")
 
 def strip_quote(node_name: str):
@@ -123,7 +122,6 @@ async def tell_story(bot, guide, thread, reader_user, story, to_id=1):
 def jump_to(tree, node_id):
     nodes = search.findall(tree, lambda node: f"{node_id}<->" in node.name)
     if len(nodes) == 0:
-        print("DIDN'T FIND NODE.")
         return
 
     current_node: Node = nodes[0]
@@ -233,9 +231,6 @@ def jump_to(tree, node_id):
         else:
             print("Current button node has no siblings, should not have been directed to this node")
 
-
-
-    # print(f"Next quotes: {[ quote.__dict__ for quote in next_quotes ]}")
     print(f"Next button infos: {[ info.__dict__ for info in next_button_infos ]}")
 
     return (next_quotes, next_button_infos)

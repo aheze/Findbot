@@ -191,11 +191,7 @@ async def mute(bot, ctx, user: discord.User, args):
     member = server.get_member(user.id)
     muted_role = discord.utils.get(server.roles, id=MUTED_ID)
     
-
-    print(f"roles, raw: {member.roles}")
     member_roles = [role for role in member.roles if role.name != "@everyone" and not role.is_premium_subscriber()]
-
-    print(f"Member roles are: {member_roles}")
     user_roles = [str(role.id) for role in member_roles]
     joined = ",".join(user_roles)
 

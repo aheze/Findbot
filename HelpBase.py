@@ -6,18 +6,15 @@ import re
 
 # from https://stackoverflow.com/a/68331641/14351818
 def parse_tree(guild_id):
-    print("parsing tree")
     help_file = FileContents.server_path(guild_id, "Config/Help.txt")
 
     with open(help_file, 'r') as file:
         raw_contents = FileContents.get_file_contents(file)
         if len(raw_contents) == 0:
             help_file = "ServerShared/Config/Help.txt"
-            
+
     with open(help_file, 'r') as file:
         raw_contents = FileContents.get_file_contents(file)
-        print(f"Raw contents: {raw_contents}")
-
 
         file_contents = []
         
@@ -79,7 +76,6 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
     p = re.compile("\<:.+\>")
     result = p.findall(previous_message)
 
-    
     selected_emoji = Utilities.get_specific_emoji_from_id(bot, [871866926173921320, 871866989294006382], int(except_selected_id))
 
     for emoji_result in result:
@@ -96,6 +92,8 @@ def replace_previous_with_unselected_emoji(bot, existing_text, except_selected_i
             previous_message = previous_message.replace("Role Information", "__**R**__ole Information")
         if "Help" in selected_emoji.name:
             previous_message = previous_message.replace("Ask a custom question", "__**A**__sk a custom question")
+        # if "Settings" in selected_emoji.name:
+        #     previous_message = previous_message.replace("Settings", "S")
 
         
         new_name = toggle_emoji(emoji_name, selected_emoji.name)

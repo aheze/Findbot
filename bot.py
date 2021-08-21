@@ -8,6 +8,7 @@ import discord
 
 from discord.ext import commands
 from discord.ext import tasks
+import typing
 
 
 from dotenv import load_dotenv
@@ -48,8 +49,6 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(
     z_About.PREFIX), activity=activity, intents=intents, help_command=None)
 
 guide_client = discord.Client()
-
-
 
 
 # Emoji
@@ -218,9 +217,9 @@ async def set_reaction_roles(ctx, message_link, *reaction_roles):
 
 
 @bot.command(name='config')
-async def configurate(ctx, name, channel: discord.TextChannel):
+async def configurate(ctx, name, value: typing.Union[discord.TextChannel, discord.User]):
     if Permissions.check_no_admin_permissions(ctx.author): return
-    await Config.configurate(ctx, name, channel)
+    await Config.configurate(ctx, name, value)
 
 @bot.group()
 async def event(ctx):
@@ -328,6 +327,13 @@ async def on_ready():
 async def setup_new_server(ctx):
     if Permissions.check_no_admin_permissions(ctx.author): return
     MultiServer.setup_new_server(bot, ctx.guild)
+    await ctx.message.add_reaction(GREEN)
+
+@bot.command(name='settings')
+async def setup_new_server(ctx):
+    if Permissions.check_no_admin_permissions(ctx.author): return
+    MultiServer.setup_new_server(bot, ctx.guild)
+    await ctx.message.add_reaction(GREEN)
 
 # @bot.event
 # async def on_guild_join(guild):

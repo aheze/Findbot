@@ -127,8 +127,6 @@ def random_message(type, guild_id, user_mention = None):
 
             return message_string
 
-    print("Nohing/...")
-
     return
 
 

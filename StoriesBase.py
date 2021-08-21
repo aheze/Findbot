@@ -250,6 +250,5 @@ def parse_file():
                 stories.append(current_story)
             current_story.append(story_line)
 
-    print(stories)
     return stories
 

@@ -1,6 +1,8 @@
+import Utilities
 import discord
 import codecs
 from cairosvg import svg2png
+import os
 
 async def send(channel: discord.TextChannel, args):
     if args:
@@ -38,11 +40,15 @@ async def get_color(ctx, color: str):
         hex_int = int(hex_str, 16)
         new_int = hex_int + 0x200
 
-        svg2png(bytestring=new_SVG,write_to='coloroutput.png', scale=0.2)
+
+        temp_file = Utilities.uniquify("ServerShared/Images/ColorOutput.png")
+
+        svg2png(bytestring=new_SVG,write_to=temp_file, scale=0.16)
         embed = discord.Embed(description=f"Color", color=new_int)
 
-        url = 'attachment://coloroutput.png'
-        file = discord.File("coloroutput.png", filename="coloroutput.png")
+        url = f'attachment://image.png'
+        file = discord.File(temp_file, filename="image.png")
         embed.set_image(url=url)
 
         await ctx.send(file=file, embed=embed)
+        os.remove(temp_file)

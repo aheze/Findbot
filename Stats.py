@@ -3,8 +3,6 @@ import Utilities
 import FileContents
 import plotly.express as px
 from plotly.graph_objs import *
-import os
-import tempfile
 
 from datetime import datetime
 DATE_FORMATTING = "%m.%d.%Y"
@@ -148,13 +146,17 @@ def render_stats_image(chart_config: StatChartConfig):
 
         return temp_file
 
-def update_server_stats(server: discord.Guild):
+def update_server_stats(guild: discord.Guild):
     current_date = datetime.now()
     current_date_string = current_date.strftime(DATE_FORMATTING)
-    current_member_count = str(server.member_count)
-    current_booster_count = str(server.premium_subscription_count)
-    Utilities.save_key_value_to_file('Logs/ServerMembersLog.txt', current_date_string, current_member_count)
-    Utilities.save_key_value_to_file('Logs/ServerBoostersLog.txt', current_date_string, current_booster_count)
+    current_member_count = str(guild.member_count)
+    current_booster_count = str(guild.premium_subscription_count)
+    
+    members_log_file = FileContents.server_path(guild.id, "Logs/ServerMembers.txt")
+    boosters_log_file = FileContents.server_path(guild.id, "Logs/ServerBoosters.txt")
+
+    Utilities.save_key_value_to_file(members_log_file, current_date_string, current_member_count)
+    Utilities.save_key_value_to_file(boosters_log_file, current_date_string, current_booster_count)
 
 
 GREEN = "<:Green:860713764742496258>"

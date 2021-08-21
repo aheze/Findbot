@@ -18,7 +18,6 @@ def get_roles_from_storage(guild_id, user_id):
         combined=FileContents.combine_file_contents(new_file_contents)
         file.write(combined)
 
-    print(f"Roles! {roles}")
     return roles
 
 def save_roles_to_storage(guild_id, user_id, roles):

@@ -1,6 +1,6 @@
 from discord import file
 import FileContents
-
+import Stats
 import discord
 
 import os
@@ -69,19 +69,22 @@ def create_server_folder(bot, guild):
     with open(timed_actions, 'w'): pass
     with open(tutorials_log, 'w'): pass
 
-
+    Stats.update_server_stats(guild)
     populate_server_config(server_config)
 
 def populate_server_config(config_path):
     server_config = {
+        "modRole": None,
         "modlog": None,
         "status": None,
-        "swear_filter_enabled": False
+        "swearFilterEnabled": False
     }
 
     output_json = json.dumps(server_config, indent=4)
     with open(config_path, 'w') as file:
         file.write(output_json)
 
+
+    
 
 
